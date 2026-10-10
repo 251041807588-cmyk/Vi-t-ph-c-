@@ -1,50 +1,68 @@
-# Kế Hoạch Thiết Kế Chuẩn Họa Tiết Áo Trạm 1 (Đông Sơn Remix) & Tích Hợp Studio
+# Kế hoạch Triển khai: Trang phục Mặc định Ở Nhà (Homewear Base) & Cơ chế Tự Phối đồ Từng Món
 
-Dựa trên ảnh mẫu 4 Trạm lịch sử và đoạn mã nguồn tương tác `RemixDongSon` của Trạm 1 (Đông Sơn), tài liệu này phác thảo giải pháp thiết kế đồ họa chi tiết và tích hợp trực tiếp vào phòng thử đồ Studio.
+## 1. Mục tiêu Cải tiến theo Phản hồi Người dùng
+- **Trạng thái ban đầu của Model (Homewear Base):**
+  - Khi bắt đầu hoặc vào bất kỳ trạm nào, người mẫu **chỉ mặc bộ đồ ở nhà** (không cho sẵn trang phục đúng đáp án ngay từ đầu).
+  - Bộ đồ ở nhà bám sát 100% hình ảnh mẫu của người dùng (`1791618687172.png`):
+    - **Áo ba lỗ trắng (White Tank Top)** ôm dáng búp bê Popmart, viền cổ tròn thoải mái, chất thun co giãn mát mẻ.
+    - **Quần short thun xám (Heather Gray Jersey Shorts)** với cạp thun co giãn / dây rút thể thao năng động.
+    - Chân trần hoặc tất mộc dễ thương tỷ lệ chibi Popmart 1:2.8.
+- **Loại bỏ việc tự động mặc sẵn đáp án:**
+  - Khi chọn bất kỳ trạm lịch sử nào từ Bản đồ (Lý - Trần, Lê Sơ, Triều Nguyễn, Pháp thuộc, Tân thời), hệ thống **không tự động gán toàn bộ trang phục gợi ý** lên người mẫu.
+  - Người chơi phải tự khám phá, mở tủ đồ và tự tay bấm chọn từng món (áo khoác, áo yếm/áo trong, quần lụa, hài thêu, nón/phụ kiện).
+- **Thẻ Gợi ý Phối đồ (Styling Suggestion & Recipe):**
+  - Vẫn hiển thị công thức phối đồ chuẩn sử liệu và ảnh minh họa để người chơi tham khảo mục tiêu, nhưng nút bấm cho phép xem chi tiết gợi ý thay vì nút "Áp dụng tất cả ngay".
+  - Thêm tính năng "Gợi ý món tiếp theo" hoặc xem danh sách các món cần tìm trong tủ đồ.
+- **Đánh giá Thuần phong Mỹ tục & Xếp hạng Sao:**
+  - Khi ở trạng thái đồ ở nhà: Hệ thống nhắc nhở nhẹ nhàng "Đang mặc trang phục ở nhà - Chưa sẵn sàng tham gia sự kiện lịch sử".
+  - Khi người chơi phối đồ: Chấm sao (1 - 5 sao) dựa trên độ kín đáo, tính đoan trang và hòa hợp văn hóa, kèm giải thích cặn kẽ vì sao phù hợp hoặc chưa phù hợp với thuần phong mỹ tục.
 
 ---
 
-## 1. Phân Tích Hình Ảnh Mẫu Trạm 1 (Văn Hóa Đông Sơn)
-Từ ảnh mẫu Trạm 1, nhân vật búp bê Popmart mang các đặc trưng tạo hình chuẩn xác:
-- **Áo yếm đỏ đất (Họa tiết Trống Đồng):** Phom yếm cổ tròn khoét nách duyên dáng, nền vải màu đỏ đất nung (terracotta/crimson), tâm ngực thêu mặt trời nhiều tia và vành chim Lạc chỉ vàng đồng.
-- **Chân váy đúp chữ A (Họa tiết chim Lạc):** Váy dài ngang bắp chân xòe chữ A hai lớp, vạt đúp dọc thân trước thêu họa tiết hình học, vòng tròn tiếp tuyến và chim Lạc sải cánh, chân váy viền răng cưa.
-- **Vòng cổ hình học (Đúc bằng đồng cổ):** Kiềng cổ bản to bằng đồng thau ánh kim (antique bronze), chạm khắc các chấm dải nổi và hoa văn kỷ hà; kèm vòng xuyến đeo tay đồng.
-- **Dây buộc tóc lụa & Kiểu tóc:** Tóc đen chải suôn tết bím lệch vắt qua một bên vai, buộc bằng dây lụa đỏ thắt tua rua vàng đồng phong cách Boho-chic nguyên sơ.
-- **Bối cảnh & Chân trần:** Chân trần mộc mạc trên thảm cỏ làng cổ, cạnh bên là trống đồng Đông Sơn và mái nhà sàn mộc mạc.
+## 2. Thiết kế Kỹ thuật & Thay đổi Thành phần
+
+### A. Cập nhật Visualizer Búp bê Popmart 3D (`PopmartDollVisualizer.tsx`)
+1. **Lớp Trang phục Nền Ở Nhà (Default Homewear Layer SVG):**
+   - Khi chưa chọn áo ngoài (`outerwear`) hay áo trong lịch sử (`innerwear`):
+     - Hiển thị **Áo ba lỗ trắng** (`#FFFFFF` với viền dệt `#E2E8F0`, đổ bóng ngực mềm mại, đường may thể thao ở cổ và nách).
+   - Khi chưa chọn quần/váy lịch sử (`bottom`):
+     - Hiển thị **Quần short thun xám** (`#9CA3AF` / `#6B7280` heather gray, đường line trắng bên hông, cạp thun năng động, chiều dài ngang đùi búp bê chibi).
+   - Khi chưa chọn giày/hài (`footwear`):
+     - Hiển thị đôi bàn chân chibi trần mộc mạc hoặc tất trắng ngắn viền xám.
+2. **Cơ chế Xếp lớp (Layering) mượt mà:**
+   - Khi người chơi chọn **Áo Dài**, **Giao Lĩnh**, **Viên Lĩnh**, hoặc **Áo Yếm**: Trang phục truyền thống sẽ phủ lên trên hoặc thay thế áo ba lỗ trắng một cách tự nhiên.
+   - Khi người chơi chọn **Quần lụa trắng**, **Quần ống rộng**, hoặc **Chân váy**: Quần truyền thống sẽ thay thế quần short thun xám.
+   - Khi người chơi chọn **Hài thêu**, **Guốc mộc**: Đôi hài sẽ che bàn chân trần.
+
+### B. Cập nhật Trạng thái Toàn cục & Khởi tạo (`app/page.tsx`)
+1. **Khởi tạo `selectedItems` rỗng ban đầu:**
+   - Chuyển `selectedItems` ban đầu thành mảng rỗng `[]` (người mẫu mặc định ở nhà).
+2. **Hành vi khi chuyển Trạm Lịch sử (`handleSelectStationAndEnterStudio`):**
+   - Không gán `presetItemIds` vào `selectedItems`.
+   - Giữ nguyên người mẫu trong trang phục ở nhà (hoặc giữ các món người chơi đang tự chọn nếu muốn mix xuyên thời kỳ).
+   - Reset trạng thái chấm sao và sẵn sàng để người chơi tự tay thử đồ.
+3. **Thêm nút Reset nhanh về "Bộ đồ ở nhà":**
+   - Cung cấp nút tiện ích 🏠 **"Về đồ ở nhà"** trên thanh công cụ của Canvas hoặc Tủ đồ để người chơi có thể cởi hết trang phục cổ trang bất kỳ lúc nào và trở về bộ áo ba lỗ + quần thun xám.
+
+### C. Nâng cấp Tủ đồ (`WardrobeDrawer.tsx`)
+1. **Chế độ Tự chọn Từng Món (Manual Mix & Match Experience):**
+   - Người chơi bấm vào từng món trong danh mục (Áo khoác, Áo mặc trong, Quần/Váy, Giày/Hài, Phụ kiện, Hoa văn) để mặc vào / cởi ra trên người mẫu.
+   - Huy hiệu gợi ý ⭐ "Gợi ý của thời kỳ này" trên các món đồ thuộc công thức của trạm hiện tại giúp người chơi dễ dàng tìm kiếm mà không bị tước đi quyền tự phối.
+2. **Bộ lọc & Trạng thái Trực quan:**
+   - Hiển thị rõ số lượng món đang mặc (vd: "Đang mặc 3 món").
 
 ---
 
-## 2. Kế Hoạch Triển Khai Chi Tiết
+## 3. Các Bước Triển khai Cụ thể
 
-### Bước 1: Chuẩn Hóa Dữ Liệu 4 Món Đồ Đông Sơn (`data/historical-data.ts`)
-Bổ sung và định nghĩa chuẩn xác 4 món đồ trong kho dữ liệu của Trạm 1:
-1. `aoYem_dongSon`: Áo yếm đỏ đất (Category: `innerwear`/`ao`, Họa tiết Trống Đồng, bonus +1 sao).
-2. `chanVay_dongSon`: Chân váy đúp chữ A (Category: `bottom`/`quan`, Họa tiết chim Lạc, bonus +1 sao).
-3. `vongCo_dongSon`: Vòng cổ hình học (Category: `accessories`/`tsuc`, Đúc bằng đồng cổ, bonus +1 sao).
-4. `dayBuocToc_dongSon`: Dây buộc tóc lụa & Bím tóc Boho (Category: `hair`/`toc`, Dây lụa tết viền vàng, bonus +1 sao).
-
-### Bước 2: Thiết Kế Lớp Đồ Họa Vector SVG Chuẩn Xác Trong `PopmartDollVisualizer.tsx`
-Bổ sung các định nghĩa SVG tinh xảo bám sát từng milimet của ảnh mẫu:
-- **SVG Áo Yếm Đỏ Đất:**
-  - Gradient màu đỏ gốm nung `#992D1B` -> `#781D10` viền chỉ vàng `#F59E0B`.
-  - Họa tiết ngôi sao 12 cánh ở ngực yếm, dải chim Lạc bay quanh tâm.
-- **SVG Chân Váy Đúp Chữ A:**
-  - Dáng váy xòe chữ A với dải tà đúp trung tâm thêu hoa văn người giã gạo, chim Lạc bay và dải răng lược Đông Sơn.
-- **SVG Vòng Cổ Đồng Bản To:**
-  - Vòng kiềng cổ đúc đồng vàng ngả ánh rêu `#D97706` / `#B45309`, chạm khắc nổi hoa văn hình học Đông Sơn và đôi lắc tay đồng hai bên.
-- **SVG Tóc Tết Bím Lệch & Dây Lụa:**
-  - Tóc tết bím dài vắt lệch qua vai trái, buộc nơ lụa đỏ tua rua vàng đồng.
-
-### Bước 3: Tích Hợp Cơ Chế Đánh Giá & Chấm Sao Động
-- Khi người mẫu ở trạng thái mặc định (áo ba lỗ trắng & quần short xám ở nhà): **1 Sao** kèm phản hồi:
-  > *"Bạn đang ở trạng thái chuẩn bị. Hãy thử khoác lên các món Việt Phục cổ để sẵn sàng tham gia lễ hội dã ngoại nào!"*
-- Khi mặc từng món: Tăng điểm sao tương ứng (+1 sao cho mỗi món đồ Đông Sơn).
-- Khi mặc đủ Áo Yếm + Chân Váy:
-  > *"Tuyệt vời! Bạn đã hoàn thiện phom dáng y phục cơ bản. Các họa tiết hình học và chim Lạc lấy cảm hứng từ trống đồng Đông Sơn đang giúp bạn tôn vinh sự hòa hợp với thiên nhiên."*
-- Khi hoàn thiện cả 4 món: **5 Sao** kèm danh hiệu **"Chiến Thần Bản Sắc"** và phản hồi:
-  > *"Xuất sắc! Bộ trang phục đạt độ hoàn chỉnh 5 sao. Sự kết hợp giữa Áo Yếm, Váy Chữ A hai lớp cùng trang sức đồng bản to tạo nên vẻ đẹp Boho-chic hoang dã nhưng đậm tính dân tộc, tôn vinh tín ngưỡng phồn thực Đông Sơn."*
-
-### Bước 4: Đồng Bộ Giao Diện Studio & Tủ Đồ Trạm 1
-- Đặt tab hoặc bộ lọc nhanh "Bộ Đông Sơn Remix" trong tủ đồ Trạm 1 để người dùng dễ dàng tìm kiếm và tự chọn từng món.
-- Cập nhật banner thông tin và thẻ sưu tập (Heritage Collector Card) phản ánh chính xác các họa tiết di sản Trống Đồng và Chim Lạc.
-- Kiểm tra tính tương thích và xác minh build với `compile_applet` và `lint_applet`.
+1. **Bước 1 - Nâng cấp SVG Popmart Doll với Bộ Đồ Ở Nhà Chuẩn Ảnh Mẫu:**
+   - Vẽ vector chính xác cho áo ba lỗ trắng (white scoop-neck tank top) và quần short thun xám (heather gray athletic shorts) với đường may tinh xảo.
+   - Thiết lập điều kiện hiển thị thông minh: Chỉ ẩn đồ ở nhà khi có trang phục truyền thống tương ứng che phủ.
+2. **Bước 2 - Điều chỉnh Logic Khởi tạo & Điều hướng trong `page.tsx`:**
+   - Xóa bỏ việc tự động mặc sẵn trang phục đáp án khi mở app và khi bấm vào trạm trên Bản đồ.
+   - Cho phép người chơi tự chọn từng món.
+3. **Bước 3 - Cập nhật Giao diện Đánh giá Thuần phong Mỹ tục:**
+   - Trạng thái mặc đồ ở nhà: Báo hiệu "Trang phục thường nhật tại gia" (Chưa chấm sao sự kiện).
+   - Khi người chơi tự chọn đồ: Tính điểm sao phù hợp thuần phong mỹ tục thời kỳ và phân tích lý do.
+4. **Bước 4 - Kiểm thử & Biên dịch:**
+   - Chạy `lint_applet` và `compile_applet` để đảm bảo hệ thống mượt mà, không phát sinh lỗi.

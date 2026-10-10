@@ -1,6 +1,6 @@
 {
-  "summary":  "Kế hoạch thiết kế và tích hợp chuẩn hoa văn Trạm 1 (Đông Sơn Remix) bám sát ảnh mẫu:\n- Thiết kế đồ họa SVG chuẩn xác: Áo yếm đỏ đất thêu trống đồng, chân váy đúp chữ A chim Lạc, vòng kiềng cổ đồng bản to và tóc tết bím lệch dây buộc lụa.\n- Tích hợp trực tiếp vào phòng thử đồ Studio Trạm 1 và đồng bộ danh mục tủ đồ.\n- Triển khai cơ chế chấm sao động (1 -> 5 sao) và phản hồi văn hóa Stylist VSIC thời gian thực.",
-  "updatedAt":  "2026-10-10T13:03:55.244404009Z",
+  "summary":  "Kế hoạch chi tiết cập nhật trang phục khởi điểm ở nhà (Áo ba lỗ trắng và quần short thun xám theo ảnh mẫu) cho nhân vật Popmart 3D, loại bỏ việc cho sẵn đáp án, và cơ chế tự chọn từng món trong tủ đồ để trải nghiệm trọn vẹn văn hoá thuần phong mỹ tục.",
+  "updatedAt":  "2026-10-10T08:25:09.612015901Z",
   "requestFeedback":  true,
   "userFacing":  true
 }
