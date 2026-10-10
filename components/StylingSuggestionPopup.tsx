@@ -85,10 +85,10 @@ export function StylingSuggestionPopup({
         {/* Apply Suggestion Button */}
         <button
           onClick={onApplyFormula}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#991B1B] to-[#BE123C] hover:brightness-110 text-white font-bold text-xs shadow-md transition-all active:scale-95"
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#991B1B] to-[#BE123C] hover:brightness-110 text-white font-bold text-xs shadow-md transition-all active:scale-95 cursor-pointer"
         >
-          <Shirt className="w-4 h-4" />
-          <span>Mặc thử gợi ý này ngay</span>
+          <Sparkles className="w-4 h-4 text-amber-300" />
+          <span>🔍 Tự chọn từng món theo gợi ý</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </button>
 

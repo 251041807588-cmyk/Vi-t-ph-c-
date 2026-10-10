@@ -359,13 +359,16 @@ export function NikkiDressUpStage({
                 </div>
               </div>
 
-              {/* Nút mặc thử gợi ý ngay */}
+              {/* Nút mở tủ đồ tự chọn theo gợi ý */}
               <button
-                onClick={onApplyStationSuggestion}
-                className="w-full mt-2.5 py-1.5 px-3 rounded-xl bg-gradient-to-r from-[#991B1B] to-[#E11D48] text-white font-bold text-[11px] shadow-sm hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-1.5"
+                onClick={() => {
+                  // Mở danh mục áo khoác ngoài hoặc áo dài để người chơi tự chọn từng món
+                  setActiveCategory('khoac');
+                }}
+                className="w-full mt-2.5 py-1.5 px-3 rounded-xl bg-gradient-to-r from-[#991B1B] to-[#E11D48] hover:from-[#B91C1C] hover:to-[#BE123C] text-white font-bold text-[11px] shadow-sm hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Mặc thử gợi ý này</span>
+                <span>🔍 Tự chọn từng món theo gợi ý</span>
               </button>
             </div>
           ) : (
@@ -992,6 +995,14 @@ export function NikkiDressUpStage({
                         </div>
 
                         <div className="flex items-center gap-1 shrink-0">
+                          {currentEra.stylingSuggestion.presetItemIds.includes(item.id) && (
+                            <span
+                              className="text-[9px] font-bold text-amber-800 bg-amber-100 border border-amber-300 px-1 py-0.5 rounded-sm"
+                              title="Món đồ thuộc công thức gợi ý của trạm này"
+                            >
+                              ⭐ Gợi ý
+                            </span>
+                          )}
                           {item.isTabooForStreetwear && (
                             <span
                               className="w-4 h-4 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-[10px] font-bold"

@@ -43,28 +43,15 @@ export default function HomePage() {
   const [eventContext, setEventContext] = useState<string>('Dạo phố cuối tuần');
   const [selectedStyle, setSelectedStyle] = useState<string>('Streetwear Layering');
 
-  // Selected items on mannequin
-  const [selectedItems, setSelectedItems] = useState<WardrobeItem[]>(() => {
-    const defaultIds = [
-      'giao-linh-coat',
-      'croptop-tee',
-      'wide-leg-pants',
-      'lotus-chrysanthemum',
-      'chunky-sneakers',
-    ];
-    return WARDROBE_CATALOG.filter((i) => defaultIds.includes(i.id));
-  });
+  // Selected items on mannequin - Bắt đầu model chỉ mặc đồ ở nhà (áo ba lỗ trắng & quần short xám)
+  const [selectedItems, setSelectedItems] = useState<WardrobeItem[]>([]);
 
   // Cultural Guardrail & Info Card State
-  const [historicalInfo, setHistoricalInfo] = useState<string | null>(
-    'Áo Giao Lĩnh (cổ chéo) là trang phục đặc trưng thời Lý - Trần - Lê. Biến tấu thành áo khoác ngoài mang đậm chất Layering hiện đại, vừa giữ được cấu trúc truyền thống vừa rất năng động.'
-  );
-  const [isAppropriate, setIsAppropriate] = useState<boolean | null>(true);
+  const [historicalInfo, setHistoricalInfo] = useState<string | null>(null);
+  const [isAppropriate, setIsAppropriate] = useState<boolean | null>(null);
   const [culturalWarning, setCulturalWarning] = useState<string | null>(null);
-  const [culturalStars, setCulturalStars] = useState<number | null>(5);
-  const [decencyExplanation, setDecencyExplanation] = useState<string | null>(
-    'Bộ trang phục bảo đảm tính kín đáo, đoan trang, tôn vinh hình thể phụ nữ Việt một cách ý nhị và đúng mực theo chuẩn mực thuần phong mỹ tục Á Đông.'
-  );
+  const [culturalStars, setCulturalStars] = useState<number | null>(null);
+  const [decencyExplanation, setDecencyExplanation] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [, startTransition] = useTransition();
 
@@ -117,12 +104,14 @@ export default function HomePage() {
     // Khi mới vào phòng phối đồ, chưa hoàn tất phối đồ
     setIsOutfitCompleted(false);
 
-    // Mặc định áp dụng gợi ý phối đồ của trạm đó cho người mẫu
-    const presetItemIds = era.stylingSuggestion.presetItemIds;
-    const items = WARDROBE_CATALOG.filter((i) => presetItemIds.includes(i.id));
-    if (items.length > 0) {
-      setSelectedItems(items);
-    }
+    // Bắt đầu model chỉ mặc đồ ở nhà (áo ba lỗ trắng & quần short xám)
+    // KHÔNG cho sẵn trang phục đúng đáp án ngay từ đầu để người dùng tự do chọn từng món
+    setSelectedItems([]);
+    setHistoricalInfo(null);
+    setIsAppropriate(null);
+    setCulturalWarning(null);
+    setCulturalStars(null);
+    setDecencyExplanation(null);
   };
 
   // Người dùng hoàn tất phối đồ (bấm nút "Sẵn sàng" / "Hoàn tất phối đồ"):
@@ -175,6 +164,8 @@ export default function HomePage() {
     setHistoricalInfo(null);
     setIsAppropriate(null);
     setCulturalWarning(null);
+    setCulturalStars(null);
+    setDecencyExplanation(null);
     setIsOutfitCompleted(false);
   };
 

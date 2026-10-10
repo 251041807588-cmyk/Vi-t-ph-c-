@@ -306,6 +306,11 @@ export function WardrobeDrawer({
                         !
                       </span>
                     )}
+                    {currentEra.stylingSuggestion.presetItemIds.includes(item.id) && (
+                      <span className="absolute -bottom-1.5 inset-x-0 mx-auto text-[8px] font-bold text-amber-900 bg-amber-200/95 rounded px-1 shadow-2xs border border-amber-400 whitespace-nowrap">
+                        ⭐ Gợi ý
+                      </span>
+                    )}
                   </div>
 
                   {/* Red Hearts Rating (Exact match to screenshot) */}

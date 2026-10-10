@@ -38,12 +38,20 @@ export function CulturalInfoCard({
 }: CulturalInfoCardProps) {
   const [copied, setCopied] = useState(false);
 
-  const starsCount = culturalStars ?? (isAppropriate === false ? 2 : 5);
+  const starsCount =
+    culturalStars !== null && culturalStars !== undefined
+      ? culturalStars
+      : historicalInfo || decencyExplanation
+      ? isAppropriate === false
+        ? 2
+        : 5
+      : null;
 
   const handleCopy = () => {
     if (!historicalInfo && !decencyExplanation) return;
-    const starStr = '★'.repeat(starsCount) + '☆'.repeat(5 - starsCount);
-    const textToCopy = `[Áo Xưa Nay - Đánh Giá Văn Hóa & Thuần Phong Mỹ Tục]\nChấm sao: ${starStr} (${starsCount}/5 sao)\n\nĐánh giá thuần phong mỹ tục:\n${
+    const sCount = starsCount ?? 5;
+    const starStr = '★'.repeat(sCount) + '☆'.repeat(5 - sCount);
+    const textToCopy = `[Áo Xưa Nay - Đánh Giá Văn Hóa & Thuần Phong Mỹ Tục]\nChấm sao: ${starStr} (${sCount}/5 sao)\n\nĐánh giá thuần phong mỹ tục:\n${
       decencyExplanation || (isAppropriate ? 'Phù hợp thuần phong mỹ tục.' : culturalWarning || '')
     }\n\nÝ nghĩa lịch sử:\n${historicalInfo || ''}`;
     navigator.clipboard.writeText(textToCopy);
@@ -154,6 +162,22 @@ export function CulturalInfoCard({
                 ★ ★ ★ ★ ★
               </div>
               <span>Đang chấm sao & rà soát thuần phong mỹ tục...</span>
+            </div>
+          ) : starsCount === null ? (
+            <div className="h-full flex flex-col justify-between rounded-lg p-3.5 border bg-amber-50/50 border-amber-200/70 text-stone-700">
+              <div className="space-y-2">
+                <div className="flex items-center gap-1.5 pb-2 border-b border-amber-900/10">
+                  <span className="text-xs font-bold uppercase tracking-wide text-amber-900">
+                    🏠 Model Đang Mặc Đồ Ở Nhà
+                  </span>
+                </div>
+                <p className="text-xs text-stone-600 leading-relaxed font-serif-editorial">
+                  Model hiện chỉ mặc áo ba lỗ trắng và quần short thun xám ở nhà. Hãy mở tủ đồ và tự tay chọn từng món trang phục truyền thống, sau đó nhấn <strong>&quot;Đối chiếu văn hóa&quot;</strong> hoặc <strong>&quot;Sẵn sàng&quot;</strong> để hệ thống chấm sao và giải thích chi tiết mức độ phù hợp với thuần phong mỹ tục!
+                </p>
+              </div>
+              <div className="mt-3 pt-2 border-t border-amber-900/10 text-[10px] text-stone-400">
+                Thang điểm: 1 đến 5 sao theo điển lễ & quy chuẩn thuần phong mỹ tục
+              </div>
             </div>
           ) : (
             <div
