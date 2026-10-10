@@ -66,7 +66,7 @@ export function HeritageCollectorCardModal({
     const text = `🎴 [ÁO XƯA NAY · THẺ SƯU TẬP DI SẢN POPMART 3D]
 🌸 Phiên bản: Búp Bê Popmart Áo Dài Lụa Hồng (Pink Silk Ao Dai Edition)
 🏛️ Mốc thời kỳ: ${era.stationTitle} (${era.period})
-🏷️ Bối cảnh sự kiện: ${eventContext}
+🏷️ Tình huống sự kiện: ${eventContext}
 ✨ Mã thẻ: ${cardSerial}
 🛡️ Thẩm định văn hóa: ${
       isAppropriate
@@ -128,7 +128,7 @@ ${culturalWarning ? `⚠️ Cảnh báo stylist: ${culturalWarning}\n` : ''}
                   {era.stationTitle}
                 </span>
                 <span className="text-[10px] text-amber-200/70 block">
-                  Bối cảnh: {eventContext}
+                  Tình huống: {eventContext}
                 </span>
               </div>
             </div>

@@ -130,7 +130,7 @@ export function CulturalInfoModal({
                 <div className="mt-2 space-y-3">
                   <p className="text-xs leading-relaxed text-red-900">
                     {culturalWarning ||
-                      'Phát hiện sự kết hợp vi phạm cấm kỵ điển chế hoặc bối cảnh không phù hợp thuần phong mỹ tục.'}
+                      'Phát hiện sự kết hợp vi phạm cấm kỵ điển chế hoặc tình huống không phù hợp thuần phong mỹ tục.'}
                   </p>
                   {hasTabooItems && (
                     <button

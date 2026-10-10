@@ -32,6 +32,7 @@ interface StationSelectionMapProps {
   selectedEraId?: string;
   onOpenKnowledge?: () => void;
   onOpenStandards?: () => void;
+  onOpenUseCases?: () => void;
 }
 
 export function StationSelectionMap({
@@ -39,6 +40,7 @@ export function StationSelectionMap({
   selectedEraId = 'ly-tran-le',
   onOpenKnowledge,
   onOpenStandards,
+  onOpenUseCases,
 }: StationSelectionMapProps) {
   const [activeEraId, setActiveEraId] = useState<string>(selectedEraId);
   const [selectedInspectEra, setSelectedInspectEra] = useState<HistoricalEra | null>(null);
@@ -1032,6 +1034,21 @@ export function StationSelectionMap({
             >
               <BookOpen className="w-5 h-5 text-amber-300" />
               <span className="text-[10px] font-bold mt-0.5">Kiến Thức</span>
+            </button>
+          )}
+
+          {/* Nút 5: 3 Tình Huống Sử Dụng */}
+          {onOpenUseCases && (
+            <button
+              onClick={() => {
+                playSoundEffect('click');
+                onOpenUseCases();
+              }}
+              className="flex flex-col items-center py-1 px-2.5 rounded-2xl hover:bg-white/10 text-stone-300 hover:text-white cursor-pointer transition-transform active:scale-90"
+              title="3 Tình huống sử dụng chính: Lễ chùa, Hội thảo, Dạo phố & Mix and Match"
+            >
+              <Sparkles className="w-5 h-5 text-rose-400" />
+              <span className="text-[10px] font-bold mt-0.5">Tình Huống</span>
             </button>
           )}
 

@@ -2,11 +2,13 @@
 
 import React, { useState } from 'react';
 import { ERA_LOOKUP_MATRIX, HISTORICAL_ERAS } from '@/data/historical-data';
-import { Copy, Check, BookOpen, Layers, ShieldCheck, Sparkles } from 'lucide-react';
+import { Copy, Check, BookOpen, Layers, ShieldCheck, Sparkles, Compass } from 'lucide-react';
+import { MainUseCasesSection } from '@/components/MainUseCasesSection';
 
 export function HistoricalEraMatrix() {
   const [copied, setCopied] = useState(false);
   const [selectedEraTab, setSelectedEraTab] = useState<string>('all');
+  const [viewMode, setViewMode] = useState<'matrix' | 'scenarios'>('matrix');
 
   const filteredMatrix =
     selectedEraTab === 'all'
@@ -66,18 +68,49 @@ export function HistoricalEraMatrix() {
         </button>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex items-center gap-1.5 p-1 bg-stone-100 rounded-xl overflow-x-auto text-xs">
+      {/* View Switcher: Bảng Kiến Thức vs 3 Tình Huống Sử Dụng */}
+      <div className="flex items-center gap-2 p-1.5 bg-stone-100 rounded-2xl w-fit">
         <button
-          onClick={() => setSelectedEraTab('all')}
-          className={`px-3 py-1.5 font-medium rounded-lg whitespace-nowrap transition-colors ${
-            selectedEraTab === 'all'
-              ? 'bg-white text-stone-900 shadow-xs font-semibold'
+          onClick={() => setViewMode('matrix')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            viewMode === 'matrix'
+              ? 'bg-white text-stone-900 shadow-xs'
               : 'text-stone-600 hover:text-stone-900'
           }`}
         >
-          Tất cả kiến thức 4 thời kỳ
+          <BookOpen className="w-3.5 h-3.5 text-[#991B1B]" />
+          <span>Bảng Tra Cứu Sử Liệu 4 Thời Kỳ</span>
         </button>
+
+        <button
+          onClick={() => setViewMode('scenarios')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            viewMode === 'scenarios'
+              ? 'bg-[#991B1B] text-white shadow-xs'
+              : 'text-stone-600 hover:text-stone-900'
+          }`}
+        >
+          <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+          <span>3 Tình Huống Sử Dụng Chính</span>
+        </button>
+      </div>
+
+      {viewMode === 'scenarios' ? (
+        <MainUseCasesSection />
+      ) : (
+        <>
+          {/* Filter Tabs */}
+          <div className="flex items-center gap-1.5 p-1 bg-stone-100 rounded-xl overflow-x-auto text-xs">
+            <button
+              onClick={() => setSelectedEraTab('all')}
+              className={`px-3 py-1.5 font-medium rounded-lg whitespace-nowrap transition-colors ${
+                selectedEraTab === 'all'
+                  ? 'bg-white text-stone-900 shadow-xs font-semibold'
+                  : 'text-stone-600 hover:text-stone-900'
+              }`}
+            >
+              Tất cả kiến thức 4 thời kỳ
+            </button>
         {HISTORICAL_ERAS.map((era) => (
           <button
             key={era.id}
@@ -166,6 +199,8 @@ export function HistoricalEraMatrix() {
           </div>
         ))}
       </div>
-    </div>
+    </>
+  )}
+</div>
   );
 }

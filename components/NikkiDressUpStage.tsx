@@ -17,8 +17,6 @@ import {
   RotateCcw,
   BookOpen,
   Layers,
-  ChevronDown,
-  ChevronUp,
   X,
   Check,
   Palette,
@@ -29,6 +27,7 @@ import {
   Filter,
 } from 'lucide-react';
 import { PopmartDollVisualizer } from '@/components/PopmartDollVisualizer';
+import { MainUseCasesSection } from '@/components/MainUseCasesSection';
 
 interface NikkiDressUpStageProps {
   currentEra: HistoricalEra;
@@ -91,7 +90,6 @@ export const CATEGORY_ITEMS: {
   { id: 'giay', name: 'Giày & Hài thêu', emoji: '👠', shortName: 'Giày' },
   { id: 'tsuc', name: 'Trang sức & Hoa văn', emoji: '👑', shortName: 'T.sức' },
   { id: 'mat', name: 'Mặt & Biểu cảm', emoji: '😊', shortName: 'Mặt' },
-  { id: 'nen', name: 'Nền & Bối cảnh', emoji: '🏞️', shortName: 'Nền' },
   { id: 'bo', name: 'Bộ mẫu chuẩn', emoji: '👘', shortName: 'Bộ' },
 ];
 
@@ -119,10 +117,10 @@ export function NikkiDressUpStage({
   const [dollModelView, setDollModelView] = useState<'popmart-chibi' | 'classic'>('popmart-chibi');
   // Category tray state
   const [activeCategory, setActiveCategory] = useState<NikkiCategory | null>(null);
-  const [isTopContextOpen, setIsTopContextOpen] = useState(true);
   const [isSuggestionPopupOpen, setIsSuggestionPopupOpen] = useState(true);
   const [bgTheme, setBgTheme] = useState<'snow-pagoda' | 'palace' | 'street'>('snow-pagoda');
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isUseCasesModalOpen, setIsUseCasesModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterPresetOnly, setFilterPresetOnly] = useState(false);
 
@@ -266,114 +264,59 @@ export function NikkiDressUpStage({
         <div className="absolute inset-0 bg-[radial-gradient(#FFFFFF_1px,transparent_1px)] [background-size:24px_24px] opacity-40 animate-pulse pointer-events-none" />
       </div>
 
-      {/* 2. TOP HEADER: NÚT QUAY LẠI HỒNG & BỐI CẢNH Ở TRÊN MODEL (VÙNG CAM TRONG ẢNH) */}
-      <div className="relative z-20 p-3 sm:p-4 space-y-2">
-        <div className="flex items-start justify-between gap-3">
-          {/* Nút quay lại tròn màu hồng có viền trắng (Y hệt góc trên bên trái trong ảnh) */}
-          <button
-            onClick={onBackToTimeline}
-            className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#FF758F] hover:bg-[#FF4D6D] border-2 border-white shadow-md flex items-center justify-center text-white active:scale-95 transition-all shrink-0"
-            title="Quay lại bản đồ các trạm"
-          >
-            <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
-          </button>
+      {/* 2. TOP HEADER: NÚT QUAY LẠI, MỐC THỜI KỲ GỌN GÀNG (ĐÃ BỎ HỘP BỐI CẢNH CHE MODEL) & NÚT TÌNH HUỐNG */}
+      <div className="relative z-20 p-3 sm:p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            {/* Nút quay lại tròn màu hồng có viền trắng */}
+            <button
+              onClick={onBackToTimeline}
+              className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#FF758F] hover:bg-[#FF4D6D] border-2 border-white shadow-md flex items-center justify-center text-white active:scale-95 transition-all shrink-0 cursor-pointer"
+              title="Quay lại bản đồ các trạm"
+            >
+              <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
+            </button>
 
-          {/* VÙNG CAM TRÊN MODEL: BỐI CẢNH CỦA MỐC THỜI KÌ HIỆN LÊN Ở TRÊN MODEL */}
-          <div className="flex-1 max-w-lg bg-white/95 backdrop-blur-md border border-amber-900/25 rounded-2xl p-2.5 sm:p-3 shadow-md">
-            <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-stone-200/60">
-              <div className="flex items-center gap-1.5">
-                <span className="w-5 h-5 rounded-md bg-[#991B1B] text-white font-bold text-[10px] flex items-center justify-center font-serif shrink-0">
-                  {currentEra.stationNumber}
-                </span>
-
-                {onChangeEra ? (
-                  <select
-                    value={currentEra.id}
-                    onChange={(e) => {
-                      const matched = HISTORICAL_ERAS.find((era) => era.id === e.target.value);
-                      if (matched) onChangeEra(matched);
-                    }}
-                    className="text-xs sm:text-sm font-bold text-stone-900 font-serif-editorial bg-transparent border-b border-dashed border-stone-400 focus:outline-none cursor-pointer pr-1"
-                    title="Đổi mốc thời kỳ lịch sử"
-                  >
-                    {HISTORICAL_ERAS.map((era) => (
-                      <option key={era.id} value={era.id}>
-                        Trạm {era.stationNumber}: {era.name} ({era.period})
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <span className="text-xs sm:text-sm font-bold text-stone-900 font-serif-editorial">
-                    {currentEra.stationTitle}
-                  </span>
-                )}
-              </div>
-
-              <div className="flex items-center gap-1.5">
-                {/* Chọn bối cảnh sự kiện */}
+            {/* Mốc thời kỳ tinh gọn - không che khuất người mẫu */}
+            <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-stone-200/90 shadow-sm">
+              <span className="w-5 h-5 rounded-full bg-[#991B1B] text-white font-bold text-[10px] flex items-center justify-center font-serif shrink-0">
+                {currentEra.stationNumber}
+              </span>
+              {onChangeEra ? (
                 <select
-                  value={eventContext}
-                  onChange={(e) => onChangeEventContext(e.target.value)}
-                  className="text-[11px] font-semibold bg-amber-50 border border-amber-200 rounded-lg px-2 py-0.5 text-stone-800 focus:outline-none"
+                  value={currentEra.id}
+                  onChange={(e) => {
+                    const matched = HISTORICAL_ERAS.find((era) => era.id === e.target.value);
+                    if (matched) onChangeEra(matched);
+                  }}
+                  className="text-xs sm:text-sm font-bold text-stone-900 bg-transparent focus:outline-none cursor-pointer pr-1 font-serif-editorial"
+                  title="Đổi mốc thời kỳ lịch sử"
                 >
-                  {EVENT_PRESETS.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
+                  {HISTORICAL_ERAS.map((era) => (
+                    <option key={era.id} value={era.id} className="text-stone-900 bg-white">
+                      Trạm {era.stationNumber}: {era.name} ({era.period})
                     </option>
                   ))}
                 </select>
-
-                <button
-                  onClick={() => setIsTopContextOpen(!isTopContextOpen)}
-                  className="p-1 rounded-md text-stone-500 hover:text-stone-800 transition-colors"
-                  title="Mở rộng / Thu gọn 3 trụ cột lịch sử"
-                >
-                  {isTopContextOpen ? (
-                    <ChevronUp className="w-3.5 h-3.5" />
-                  ) : (
-                    <ChevronDown className="w-3.5 h-3.5" />
-                  )}
-                </button>
-              </div>
+              ) : (
+                <span className="text-xs sm:text-sm font-bold text-stone-900 font-serif-editorial">
+                  {currentEra.stationTitle}
+                </span>
+              )}
             </div>
-
-            {/* 3 Trụ cột lịch sử thu gọn/mở rộng trực tiếp trên model */}
-            {isTopContextOpen ? (
-              <div className="pt-2 grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-[10px] sm:text-[11px] leading-tight">
-                <div className="bg-rose-50/70 p-1.5 rounded-lg border border-rose-200/50">
-                  <span className="font-bold text-rose-900 block mb-0.5">
-                    1. Ý chí dân tộc:
-                  </span>
-                  <span className="text-stone-700 line-clamp-2">
-                    {currentEra.politicalWill}
-                  </span>
-                </div>
-                <div className="bg-amber-50/70 p-1.5 rounded-lg border border-amber-200/50">
-                  <span className="font-bold text-amber-900 block mb-0.5">
-                    2. Giao thoa văn hóa:
-                  </span>
-                  <span className="text-stone-700 line-clamp-2">
-                    {currentEra.culturalExchange}
-                  </span>
-                </div>
-                <div className="bg-emerald-50/70 p-1.5 rounded-lg border border-emerald-200/50">
-                  <span className="font-bold text-emerald-900 block mb-0.5">
-                    3. Kinh tế & Lối sống:
-                  </span>
-                  <span className="text-stone-700 line-clamp-2">
-                    {currentEra.economicAndLifestyle}
-                  </span>
-                </div>
-              </div>
-            ) : (
-              <p className="text-[11px] text-stone-600 italic pt-1 truncate">
-                &ldquo;{currentEra.tagline}&rdquo;
-              </p>
-            )}
           </div>
 
-          {/* Nút Tràn toàn màn hình / Thu nhỏ */}
-          <div className="flex items-center gap-1.5 shrink-0">
+          {/* Nút Tình huống & Tràn toàn màn hình / Thu nhỏ */}
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => setIsUseCasesModalOpen(true)}
+              className="h-10 sm:h-11 px-3 sm:px-4 rounded-full bg-rose-50 hover:bg-rose-100 border-2 border-rose-300 text-rose-800 text-xs font-bold flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
+              title="Xem 3 tình huống sử dụng chính: Đi lễ chùa, Đi hội thảo, Chụp ảnh dạo phố & Mix and Match"
+            >
+              <Sparkles className="w-4 h-4 text-rose-600" />
+              <span>Tình huống</span>
+            </button>
+
             <button
               onClick={() => setIsFullscreen(!isFullscreen)}
               className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-stone-900/80 hover:bg-stone-900 border-2 border-white/80 text-white shadow-md flex items-center justify-center active:scale-95 transition-all cursor-pointer"
@@ -391,7 +334,7 @@ export function NikkiDressUpStage({
 
       {/* 3. KHU VỰC CHÍNH Ở GIỮA: MODEL NGƯỜI MẪU NIKKI + BÊN TRÁI POPUP + BÊN PHẢI TỦ ĐỒ (TRÀN MÀN HÌNH KHÔNG KHUẤT) */}
       <div className="relative z-10 flex-1 flex flex-col lg:flex-row items-center lg:items-stretch justify-between px-3 sm:px-6 lg:px-8 gap-4 py-2">
-        {/* BÊN TRÁI MODEL: POP-UP GỢI Ý PHỐI ĐỒ (VÙNG CAM BÊN TRÁI DƯỚI TRONG ẢNH) */}
+        {/* BÊN TRÁI MODEL: POP-UP TÌNH HUỐNG (VÙNG BÊN TRÁI DƯỚI TRONG ẢNH) */}
         <div className="w-full lg:w-68 xl:w-72 flex flex-col justify-end space-y-3 shrink-0 self-end mb-4 z-20">
           {isSuggestionPopupOpen ? (
             <div className="bg-white/95 backdrop-blur-md border-2 border-rose-200/80 rounded-2xl p-3 sm:p-3.5 shadow-xl relative animate-in fade-in duration-200">
@@ -400,18 +343,18 @@ export function NikkiDressUpStage({
                 <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
                   <span className="text-xs font-bold text-rose-950 font-serif-editorial">
-                    Gợi Ý Phối Đồ Lịch Sử
+                    Tình Huống Phối Đồ
                   </span>
                 </div>
                 <button
                   onClick={() => setIsSuggestionPopupOpen(false)}
-                  className="text-stone-400 hover:text-stone-600 p-0.5"
+                  className="text-stone-400 hover:text-stone-600 p-0.5 cursor-pointer"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
 
-              {/* Tên gợi ý & Công thức */}
+              {/* Tên tình huống & Công thức */}
               <div className="space-y-1.5 text-xs">
                 <div className="font-bold text-rose-900 text-[11px] sm:text-xs">
                   {currentEra.stylingSuggestion.title}
@@ -434,7 +377,7 @@ export function NikkiDressUpStage({
                 </div>
               </div>
 
-              {/* Nút mở tủ đồ tự chọn theo gợi ý */}
+              {/* Nút mở tủ đồ tự chọn theo tình huống */}
               <button
                 onClick={() => {
                   // Mở danh mục áo khoác ngoài hoặc áo dài để người chơi tự chọn từng món
@@ -443,16 +386,16 @@ export function NikkiDressUpStage({
                 className="w-full mt-2.5 py-1.5 px-3 rounded-xl bg-gradient-to-r from-[#991B1B] to-[#E11D48] hover:from-[#B91C1C] hover:to-[#BE123C] text-white font-bold text-[11px] shadow-sm hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>🔍 Tự chọn từng món theo gợi ý</span>
+                <span>🔍 Tự chọn từng món theo tình huống</span>
               </button>
             </div>
           ) : (
             <button
               onClick={() => setIsSuggestionPopupOpen(true)}
-              className="self-start flex items-center gap-1.5 bg-white/90 border border-rose-200 px-3 py-1.5 rounded-full text-xs font-bold text-rose-800 shadow-md hover:bg-white transition-all"
+              className="self-start flex items-center gap-1.5 bg-white/90 border border-rose-200 px-3 py-1.5 rounded-full text-xs font-bold text-rose-800 shadow-md hover:bg-white transition-all cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5 text-rose-600" />
-              <span>Mở Gợi ý phối đồ</span>
+              <span>Mở Tình huống</span>
             </button>
           )}
 
@@ -993,10 +936,10 @@ export function NikkiDressUpStage({
                             ? 'bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs'
                             : 'bg-stone-100 hover:bg-stone-200 text-stone-600'
                         }`}
-                        title="Chỉ hiển thị các món thuộc công thức gợi ý lịch sử"
+                        title="Chỉ hiển thị các món thuộc tình huống lịch sử"
                       >
                         <Sparkles className="w-3 h-3 text-amber-600" />
-                        <span>Chỉ gợi ý</span>
+                        <span>Theo tình huống</span>
                       </button>
                     )}
 
@@ -1158,9 +1101,9 @@ export function NikkiDressUpStage({
                                 {isRecommended && (
                                   <span
                                     className="text-[9px] font-bold text-amber-900 bg-amber-100 border border-amber-300 px-1 py-0.2 rounded-sm shrink-0"
-                                    title="Món đồ thuộc công thức gợi ý lịch sử"
+                                    title="Món đồ thuộc tình huống lịch sử"
                                   >
-                                    ⭐ Gợi ý
+                                    ⭐ Tình huống
                                   </span>
                                 )}
                                 {item.isTabooForStreetwear && (
@@ -1337,24 +1280,7 @@ export function NikkiDressUpStage({
               )}
             </button>
 
-            {/* 8. Nền */}
-            <button
-              onClick={() => setActiveCategory(activeCategory === 'nen' ? null : 'nen')}
-              className={`relative h-11 sm:h-12 rounded-xl border flex flex-col items-center justify-center transition-all cursor-pointer ${
-                activeCategory === 'nen'
-                  ? 'bg-rose-50 border-rose-500 ring-2 ring-rose-400 shadow-md'
-                  : 'bg-white/95 hover:bg-white border-stone-200 hover:scale-105'
-              }`}
-              title="Nền & Bối cảnh di sản"
-            >
-              <span className="text-base leading-none">🏞️</span>
-              <span className="text-[9px] font-bold text-stone-800">Nền</span>
-              {getEquippedCount('nen') > 0 && (
-                <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-rose-500 ring-1 ring-white" />
-              )}
-            </button>
-
-            {/* 9. Khoác */}
+            {/* 8. Khoác */}
             <button
               onClick={() => setActiveCategory(activeCategory === 'khoac' ? null : 'khoac')}
               className={`relative h-11 sm:h-12 rounded-xl border flex flex-col items-center justify-center transition-all cursor-pointer ${
@@ -1414,6 +1340,29 @@ export function NikkiDressUpStage({
           </div>
         </div>
       </div>
+
+      {/* MODAL XEM 3 TÌNH HUỐNG SỬ DỤNG CHÍNH */}
+      {isUseCasesModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-5xl max-h-[90vh] bg-white rounded-3xl shadow-2xl overflow-y-auto border border-stone-200">
+            <button
+              onClick={() => setIsUseCasesModalOpen(false)}
+              className="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-stone-900/80 hover:bg-stone-900 text-white flex items-center justify-center transition-all cursor-pointer shadow-md"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="p-2 sm:p-4">
+              <MainUseCasesSection
+                onNavigateToStudio={() => setIsUseCasesModalOpen(false)}
+                onSelectScenarioPreset={(preset) => {
+                  onChangeEventContext(preset.eventContext);
+                  setIsUseCasesModalOpen(false);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

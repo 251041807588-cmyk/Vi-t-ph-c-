@@ -33,7 +33,7 @@ export function StylingSuggestionPopup({
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
             <h3 className="text-xs font-bold uppercase tracking-wider text-stone-800 font-serif-editorial">
-              Gợi Ý Phối Đồ Lịch Sử
+              Tình Huống Phối Đồ
             </h3>
           </div>
           <span className="text-[10px] font-bold text-amber-800 bg-amber-100/70 px-2 py-0.5 rounded-full">
@@ -86,7 +86,7 @@ export function StylingSuggestionPopup({
           className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#991B1B] to-[#BE123C] hover:brightness-110 text-white font-bold text-xs shadow-md transition-all active:scale-95 cursor-pointer"
         >
           <Sparkles className="w-4 h-4 text-amber-300" />
-          <span>🔍 Tự chọn từng món theo gợi ý</span>
+          <span>🔍 Tự chọn từng món theo tình huống</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </button>
 

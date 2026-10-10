@@ -1,11 +1,11 @@
 'use client';
 
 import React from 'react';
-import { BookOpen, Shirt, ShieldCheck } from 'lucide-react';
+import { BookOpen, Shirt, ShieldCheck, Sparkles } from 'lucide-react';
 
 interface HeaderProps {
-  activeTab: 'studio' | 'matrix' | 'about';
-  setActiveTab: (tab: 'studio' | 'matrix' | 'about') => void;
+  activeTab: 'studio' | 'cases' | 'matrix' | 'about';
+  setActiveTab: (tab: 'studio' | 'cases' | 'matrix' | 'about') => void;
 }
 
 export function Header({ activeTab, setActiveTab }: HeaderProps) {
@@ -28,7 +28,7 @@ export function Header({ activeTab, setActiveTab }: HeaderProps) {
         </div>
 
         {/* Zone 2: Navigation Links */}
-        <nav className="flex items-center gap-3 sm:gap-6 text-sm font-medium text-stone-600">
+        <nav className="flex items-center gap-2 sm:gap-5 text-sm font-medium text-stone-600">
           <button
             onClick={() => setActiveTab('studio')}
             className={`flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 pb-0.5 cursor-pointer ${
@@ -39,6 +39,18 @@ export function Header({ activeTab, setActiveTab }: HeaderProps) {
           >
             <Shirt className="w-4 h-4" />
             <span>Studio Phối Đồ</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('cases')}
+            className={`flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 pb-0.5 cursor-pointer ${
+              activeTab === 'cases'
+                ? 'text-[#991B1B] font-semibold border-b-2 border-[#991B1B]'
+                : 'hover:text-stone-900'
+            }`}
+          >
+            <Sparkles className="w-4 h-4 text-amber-600" />
+            <span>Tình Huống Sử Dụng</span>
           </button>
 
           <button
@@ -55,7 +67,7 @@ export function Header({ activeTab, setActiveTab }: HeaderProps) {
 
           <button
             onClick={() => setActiveTab('about')}
-            className={`hidden sm:flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 pb-0.5 cursor-pointer ${
+            className={`hidden md:flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 pb-0.5 cursor-pointer ${
               activeTab === 'about'
                 ? 'text-[#991B1B] font-semibold border-b-2 border-[#991B1B]'
                 : 'hover:text-stone-900'

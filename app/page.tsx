@@ -9,6 +9,7 @@ import { CulturalInfoModal } from '@/components/CulturalInfoModal';
 import { HistoricalEraMatrix } from '@/components/HistoricalEraMatrix';
 import { CulturalStandardsSection } from '@/components/CulturalStandardsModal';
 import { HeritageCollectorCardModal } from '@/components/HeritageCollectorCardModal';
+import { MainUseCasesSection } from '@/components/MainUseCasesSection';
 import {
   HISTORICAL_ERAS,
   WARDROBE_CATALOG,
@@ -19,13 +20,13 @@ import {
 import { ArrowLeft } from 'lucide-react';
 
 export default function HomePage() {
-  const [activeTab, setActiveTab] = useState<'studio' | 'matrix' | 'about'>('studio');
+  const [activeTab, setActiveTab] = useState<'studio' | 'cases' | 'matrix' | 'about'>('studio');
   const [isCulturalModalOpen, setIsCulturalModalOpen] = useState(false);
   const [isCollectorCardOpen, setIsCollectorCardOpen] = useState(false);
 
   // Workflow state:
   // Ban đầu CHỈ hiển thị giao diện các trạm dạng full-screen (bỏ nền phía trên).
-  // Khi click vào 1 trạm mới mở Studio (người mẫu + bối cảnh + gợi ý + tủ đồ).
+  // Khi click vào 1 trạm mới mở Studio (người mẫu + tình huống + tủ đồ).
   const [isStudioView, setIsStudioView] = useState(false);
 
   // Trạng thái đã phối đồ xong hay chưa:
@@ -91,7 +92,7 @@ export default function HomePage() {
   );
 
   // Người dùng click vào một trạm từ bản đồ các trạm:
-  // Kích hoạt giao diện Studio (người mẫu + bối cảnh + gợi ý + tủ đồ)
+  // Kích hoạt giao diện Studio (người mẫu + tình huống + tủ đồ)
   const handleSelectStationAndEnterStudio = (era: HistoricalEra) => {
     setSelectedEra(era);
     setIsStudioView(true);
@@ -251,6 +252,7 @@ export default function HomePage() {
                 selectedEraId={selectedEra.id}
                 onOpenKnowledge={() => setActiveTab('matrix')}
                 onOpenStandards={() => setIsCulturalModalOpen(true)}
+                onOpenUseCases={() => setActiveTab('cases')}
               />
             ) : (
               /* GIAO DIỆN 2: SAU KHI CLICK VÀO CÁC TRẠM MỚI HIỆN LÊN NGƯỜI MẪU VÀ TỦ ĐỒ,... */
@@ -381,6 +383,25 @@ export default function HomePage() {
                 )}
               </div>
             )}
+          </div>
+        )}
+
+        {activeTab === 'cases' && (
+          <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <MainUseCasesSection
+              onNavigateToStudio={() => {
+                setActiveTab('studio');
+                setIsStudioView(true);
+              }}
+              onSelectScenarioPreset={(preset) => {
+                const matchedEra = HISTORICAL_ERAS.find((e) => e.id === preset.eraId);
+                if (matchedEra) setSelectedEra(matchedEra);
+                setEventContext(preset.eventContext);
+                setSelectedStyle(preset.styleName);
+                setActiveTab('studio');
+                setIsStudioView(true);
+              }}
+            />
           </div>
         )}
 
