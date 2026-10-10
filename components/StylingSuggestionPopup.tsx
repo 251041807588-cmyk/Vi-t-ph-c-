@@ -7,7 +7,6 @@ import {
   Shirt,
   ShieldAlert,
   ArrowRight,
-  Bot,
   Layers,
   Award,
 } from 'lucide-react';
@@ -16,14 +15,13 @@ interface StylingSuggestionPopupProps {
   currentEra: HistoricalEra;
   onApplyFormula: () => void;
   onOpenEvaluation: () => void;
-  onOpenChat: () => void;
+  onOpenChat?: () => void;
 }
 
 export function StylingSuggestionPopup({
   currentEra,
   onApplyFormula,
   onOpenEvaluation,
-  onOpenChat,
 }: StylingSuggestionPopupProps) {
   const suggestion = currentEra.stylingSuggestion;
 
@@ -35,7 +33,7 @@ export function StylingSuggestionPopup({
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
             <h3 className="text-xs font-bold uppercase tracking-wider text-stone-800 font-serif-editorial">
-              Gợi Ý Phối Đồ (Stylist Pop-up)
+              Gợi Ý Phối Đồ Lịch Sử
             </h3>
           </div>
           <span className="text-[10px] font-bold text-amber-800 bg-amber-100/70 px-2 py-0.5 rounded-full">
@@ -95,19 +93,10 @@ export function StylingSuggestionPopup({
         {/* Check Guardrails CTA */}
         <button
           onClick={onOpenEvaluation}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-xs transition-colors"
+          className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer"
         >
           <Award className="w-3.5 h-3.5 text-amber-300" />
           <span>Đánh giá & Chấm điểm văn hóa</span>
-        </button>
-
-        {/* Ask Stylist */}
-        <button
-          onClick={onOpenChat}
-          className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium text-[11px] transition-colors"
-        >
-          <Bot className="w-3.5 h-3.5 text-rose-600" />
-          <span>Tư vấn thêm với AI Stylist</span>
         </button>
       </div>
     </div>

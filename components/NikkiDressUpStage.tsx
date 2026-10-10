@@ -16,7 +16,6 @@ import {
   Search,
   RotateCcw,
   BookOpen,
-  Bot,
   Layers,
   ChevronDown,
   ChevronUp,
@@ -25,6 +24,9 @@ import {
   Palette,
   AlertTriangle,
   Camera,
+  Maximize2,
+  Minimize2,
+  Filter,
 } from 'lucide-react';
 import { PopmartDollVisualizer } from '@/components/PopmartDollVisualizer';
 
@@ -37,7 +39,7 @@ interface NikkiDressUpStageProps {
   onApplyStationSuggestion: () => void;
   onBackToTimeline: () => void;
   onOpenEvaluation: () => void;
-  onOpenChat: () => void;
+  onOpenChat?: () => void;
   eventContext: string;
   onChangeEventContext: (ctx: string) => void;
   isAnalyzing: boolean;
@@ -74,6 +76,25 @@ const EVENT_PRESETS = [
   'Trình diễn nghệ thuật',
 ];
 
+export const CATEGORY_ITEMS: {
+  id: NikkiCategory;
+  name: string;
+  emoji: string;
+  shortName: string;
+}[] = [
+  { id: 'toc', name: 'Tóc & Mấn', emoji: '💇‍♀️', shortName: 'Tóc' },
+  { id: 'dam', name: 'Đầm & Áo dài', emoji: '👗', shortName: 'Đầm' },
+  { id: 'ao', name: 'Áo trong & Yếm', emoji: '👚', shortName: 'Áo' },
+  { id: 'quan', name: 'Quần & Váy', emoji: '👖', shortName: 'Quần' },
+  { id: 'khoac', name: 'Áo khoác ngoài', emoji: '🧥', shortName: 'Khoác' },
+  { id: 'vo', name: 'Vớ & Tất chân', emoji: '🧦', shortName: 'Vớ' },
+  { id: 'giay', name: 'Giày & Hài thêu', emoji: '👠', shortName: 'Giày' },
+  { id: 'tsuc', name: 'Trang sức & Hoa văn', emoji: '👑', shortName: 'T.sức' },
+  { id: 'mat', name: 'Mặt & Biểu cảm', emoji: '😊', shortName: 'Mặt' },
+  { id: 'nen', name: 'Nền & Bối cảnh', emoji: '🏞️', shortName: 'Nền' },
+  { id: 'bo', name: 'Bộ mẫu chuẩn', emoji: '👘', shortName: 'Bộ' },
+];
+
 export function NikkiDressUpStage({
   currentEra,
   selectedItems,
@@ -101,6 +122,9 @@ export function NikkiDressUpStage({
   const [isTopContextOpen, setIsTopContextOpen] = useState(true);
   const [isSuggestionPopupOpen, setIsSuggestionPopupOpen] = useState(true);
   const [bgTheme, setBgTheme] = useState<'snow-pagoda' | 'palace' | 'street'>('snow-pagoda');
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterPresetOnly, setFilterPresetOnly] = useState(false);
 
   // Categorize active worn items
   const hair = selectedItems.find((i) => i.category === 'hair');
@@ -146,8 +170,44 @@ export function NikkiDressUpStage({
     }
   };
 
+  // Check equipped count per category
+  const getEquippedCount = (cat: NikkiCategory): number => {
+    switch (cat) {
+      case 'toc':
+        return hair ? 1 : 0;
+      case 'dam':
+        return selectedItems.filter(
+          (i) => i.id.includes('ao-dai') || i.id.includes('nhat-binh') || i.id.includes('dam')
+        ).length;
+      case 'ao':
+        return inner ? 1 : 0;
+      case 'quan':
+        return bottom ? 1 : 0;
+      case 'khoac':
+        return outer ? 1 : 0;
+      case 'vo':
+        return selectedItems.filter((i) => i.category === 'socks').length;
+      case 'giay':
+        return footwear ? 1 : 0;
+      case 'tsuc':
+        return accessories.length + (motif ? 1 : 0);
+      case 'mat':
+        return selectedItems.filter((i) => i.category === 'face').length;
+      case 'nen':
+        return bgTheme !== 'snow-pagoda' ? 1 : 0;
+      default:
+        return 0;
+    }
+  };
+
   return (
-    <div className="relative w-full max-w-4xl mx-auto rounded-3xl overflow-hidden shadow-2xl border-4 border-white/80 bg-[#1e293b] select-none min-h-[740px] sm:min-h-[800px] flex flex-col justify-between">
+    <div
+      className={`relative w-full overflow-hidden shadow-2xl bg-[#1e293b] select-none flex flex-col justify-between transition-all duration-300 ${
+        isFullscreen
+          ? 'fixed inset-0 z-50 rounded-none border-0 min-h-screen w-screen h-screen'
+          : 'w-full max-w-full xl:max-w-[1600px] 2xl:max-w-[1720px] mx-auto rounded-2xl sm:rounded-3xl border-2 sm:border-4 border-white/80 min-h-[820px] lg:min-h-[880px]'
+      }`}
+    >
       {/* 1. KHÔNG GIAN BỐI CẢNH (HÌNH ẢNH SÂN CHÙA MÙA ĐÔNG / HOÀNG THÀNH TRONG ẢNH) */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         {/* Background gradient sky */}
@@ -311,13 +371,28 @@ export function NikkiDressUpStage({
               </p>
             )}
           </div>
+
+          {/* Nút Tràn toàn màn hình / Thu nhỏ */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={() => setIsFullscreen(!isFullscreen)}
+              className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-stone-900/80 hover:bg-stone-900 border-2 border-white/80 text-white shadow-md flex items-center justify-center active:scale-95 transition-all cursor-pointer"
+              title={isFullscreen ? 'Thu nhỏ giao diện' : 'Tràn toàn màn hình (Fullscreen)'}
+            >
+              {isFullscreen ? (
+                <Minimize2 className="w-5 h-5 text-amber-300 stroke-[2.5]" />
+              ) : (
+                <Maximize2 className="w-5 h-5 text-white stroke-[2.5]" />
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* 3. KHU VỰC CHÍNH Ở GIỮA: MODEL NGƯỜI MẪU NIKKI + BÊN TRÁI POPUP + BÊN PHẢI TỦ ĐỒ */}
-      <div className="relative z-10 flex-1 flex items-center justify-between px-3 sm:px-6">
+      {/* 3. KHU VỰC CHÍNH Ở GIỮA: MODEL NGƯỜI MẪU NIKKI + BÊN TRÁI POPUP + BÊN PHẢI TỦ ĐỒ (TRÀN MÀN HÌNH KHÔNG KHUẤT) */}
+      <div className="relative z-10 flex-1 flex flex-col lg:flex-row items-center lg:items-stretch justify-between px-3 sm:px-6 lg:px-8 gap-4 py-2">
         {/* BÊN TRÁI MODEL: POP-UP GỢI Ý PHỐI ĐỒ (VÙNG CAM BÊN TRÁI DƯỚI TRONG ẢNH) */}
-        <div className="w-60 sm:w-68 flex flex-col justify-end space-y-3 shrink-0 self-end mb-4">
+        <div className="w-full lg:w-68 xl:w-72 flex flex-col justify-end space-y-3 shrink-0 self-end mb-4 z-20">
           {isSuggestionPopupOpen ? (
             <div className="bg-white/95 backdrop-blur-md border-2 border-rose-200/80 rounded-2xl p-3 sm:p-3.5 shadow-xl relative animate-in fade-in duration-200">
               {/* Header pop-up */}
@@ -325,7 +400,7 @@ export function NikkiDressUpStage({
                 <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
                   <span className="text-xs font-bold text-rose-950 font-serif-editorial">
-                    Stylist Gợi Ý Phối Đồ
+                    Gợi Ý Phối Đồ Lịch Sử
                   </span>
                 </div>
                 <button
@@ -455,17 +530,6 @@ export function NikkiDressUpStage({
               </button>
             </div>
 
-            {/* AI Image Recognition Scanner Button */}
-            {onOpenRecognition && (
-              <button
-                onClick={onOpenRecognition}
-                className="px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-white text-[10px] font-bold shadow-md hover:scale-105 active:scale-95 transition-all flex items-center gap-1 cursor-pointer"
-                title="Nhận diện & Chèn hình ảnh phối đồ vào UI"
-              >
-                <Camera className="w-3 h-3 text-amber-200" />
-                <span>📷 Quét ảnh phối đồ</span>
-              </button>
-            )}
 
             {/* Quick Wear Pink Silk Preset */}
             <button
@@ -901,317 +965,451 @@ export function NikkiDressUpStage({
           )}
         </div>
 
-        {/* BÊN PHẢI CẠNH MODEL: THANH CỘT DANH MỤC TỦ ĐỒ (Y HỆT THANH BÊN PHẢI TRONG ẢNH) */}
-        <div className="flex items-start gap-2 shrink-0 z-20">
-          {/* Menu Drawer mở ra khi click vào danh mục */}
+        {/* BÊN PHẢI CẠNH MODEL: KHU VỰC TỦ ĐỒ (WARDROBE) - THIẾT KẾ RỘNG RÃI TRÀN MÀN HÌNH, KHÔNG BỊ KHUẤT */}
+        <div className="relative flex items-start gap-2.5 shrink-0 z-30 self-stretch lg:self-auto justify-end">
+          {/* Menu Drawer mở ra khi click vào danh mục: Rộng rãi, hiển thị rõ ràng, chuyển danh mục nhanh */}
           {activeCategory && (
-            <div className="w-56 sm:w-64 bg-white/95 backdrop-blur-md rounded-2xl border-2 border-stone-200 shadow-2xl p-3 animate-in fade-in slide-in-from-right-4 duration-200 max-h-[560px] flex flex-col justify-between">
+            <div className="w-80 sm:w-96 lg:w-[420px] xl:w-[460px] bg-white/95 backdrop-blur-md rounded-2xl border-2 border-stone-200 shadow-2xl p-3 sm:p-4 animate-in fade-in slide-in-from-right-4 duration-200 max-h-[660px] lg:max-h-[700px] flex flex-col justify-between">
               {/* Drawer header */}
-              <div className="flex items-center justify-between pb-2 border-b border-stone-200">
-                <span className="text-xs font-bold uppercase text-stone-800">
-                  {activeCategory === 'toc'
-                    ? 'Tóc & Mấn'
-                    : activeCategory === 'dam'
-                    ? 'Đầm & Áo dài'
-                    : activeCategory === 'ao'
-                    ? 'Áo trong & Yếm'
-                    : activeCategory === 'quan'
-                    ? 'Quần & Váy'
-                    : activeCategory === 'khoac'
-                    ? 'Áo khoác ngoài'
-                    : activeCategory === 'vo'
-                    ? 'Vớ & Tất chân'
-                    : activeCategory === 'giay'
-                    ? 'Giày & Hài thêu'
-                    : activeCategory === 'tsuc'
-                    ? 'Trang sức & Hoa văn'
-                    : activeCategory === 'mat'
-                    ? 'Mặt & Biểu cảm (Popmart)'
-                    : activeCategory === 'nen'
-                    ? 'Nền & Bối cảnh di sản'
-                    : 'Bộ trang phục mẫu'}
-                </span>
-                <button
-                  onClick={() => setActiveCategory(null)}
-                  className="p-1 text-stone-400 hover:text-stone-700"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
+              <div className="space-y-2 pb-2 border-b border-stone-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-base">
+                      {CATEGORY_ITEMS.find((c) => c.id === activeCategory)?.emoji || '👗'}
+                    </span>
+                    <span className="text-xs sm:text-sm font-bold uppercase text-stone-900 font-serif-editorial">
+                      {CATEGORY_ITEMS.find((c) => c.id === activeCategory)?.name ||
+                        (activeCategory === 'bo' ? 'Bộ Trang Phục Mẫu' : 'Tủ Đồ')}
+                    </span>
+                  </div>
 
-              {/* Items List */}
-              <div className="overflow-y-auto space-y-2 py-2 pr-1 flex-1">
-                {activeCategory === 'bo' ? (
-                  /* Presets */
-                  PRESET_OUTFITS.map((preset) => (
-                    <div
-                      key={preset.id}
-                      onClick={() => {
-                        onApplyPreset(preset.id);
-                        setActiveCategory(null);
-                      }}
-                      className="p-2 rounded-xl bg-stone-50 hover:bg-rose-50 border border-stone-200 hover:border-rose-300 cursor-pointer transition-all text-xs"
-                    >
-                      <div className="font-bold text-stone-900">{preset.name}</div>
-                      <div className="text-[10px] text-stone-500 line-clamp-1">
-                        {preset.styleName} · {preset.eventContext}
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  /* Wardrobe items for this category */
-                  getCategoryItems(activeCategory).map((item) => {
-                    const worn = isSelected(item.id);
-                    return (
-                      <div
-                        key={item.id}
-                        onClick={() => {
-                          if (item.category === 'background') {
-                            if (item.id === 'nen-hoang-thanh-hue') setBgTheme('palace');
-                            else if (item.id === 'nen-pho-co-hoi-an') setBgTheme('street');
-                            else setBgTheme('snow-pagoda');
-                          }
-                          onToggleItem(item);
-                        }}
-                        className={`p-2 rounded-xl border cursor-pointer transition-all flex items-center justify-between gap-2 ${
-                          worn
-                            ? 'bg-rose-50 border-rose-500 shadow-xs'
-                            : 'bg-stone-50/80 hover:bg-stone-100 border-stone-200'
+                  <div className="flex items-center gap-1.5">
+                    {/* Toggle chỉ hiện món gợi ý */}
+                    {activeCategory !== 'bo' && (
+                      <button
+                        onClick={() => setFilterPresetOnly(!filterPresetOnly)}
+                        className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                          filterPresetOnly
+                            ? 'bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs'
+                            : 'bg-stone-100 hover:bg-stone-200 text-stone-600'
                         }`}
+                        title="Chỉ hiển thị các món thuộc công thức gợi ý lịch sử"
                       >
-                        <div className="flex items-center gap-2 overflow-hidden">
-                          <span
-                            className="w-4 h-4 rounded-full border border-black/10 shrink-0"
-                            style={{ backgroundColor: item.color }}
-                          />
-                          <div className="overflow-hidden">
-                            <span className="text-xs font-bold text-stone-900 block truncate">
-                              {item.name}
-                            </span>
-                            <span className="text-[10px] text-stone-500 block truncate">
-                              {item.styleTag}
-                            </span>
-                          </div>
-                        </div>
+                        <Sparkles className="w-3 h-3 text-amber-600" />
+                        <span>Chỉ gợi ý</span>
+                      </button>
+                    )}
 
-                        <div className="flex items-center gap-1 shrink-0">
-                          {currentEra.stylingSuggestion.presetItemIds.includes(item.id) && (
-                            <span
-                              className="text-[9px] font-bold text-amber-800 bg-amber-100 border border-amber-300 px-1 py-0.5 rounded-sm"
-                              title="Món đồ thuộc công thức gợi ý của trạm này"
-                            >
-                              ⭐ Gợi ý
-                            </span>
-                          )}
-                          {item.isTabooForStreetwear && (
-                            <span
-                              className="w-4 h-4 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-[10px] font-bold"
-                              title="Họa tiết cấm kỵ"
-                            >
-                              !
-                            </span>
-                          )}
+                    <button
+                      onClick={() => {
+                        setActiveCategory(null);
+                        setSearchQuery('');
+                        setFilterPresetOnly(false);
+                      }}
+                      className="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors cursor-pointer"
+                      title="Đóng bảng tủ đồ"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Thanh chuyển nhanh giữa các danh mục ngay trong Drawer - Người dùng không phải đóng mở */}
+                <div className="flex items-center gap-1 overflow-x-auto pb-1 pt-0.5 scrollbar-thin">
+                  {CATEGORY_ITEMS.map((cat) => {
+                    const isCatActive = activeCategory === cat.id;
+                    const eqCount = getEquippedCount(cat.id);
+                    return (
+                      <button
+                        key={cat.id}
+                        onClick={() => {
+                          setActiveCategory(cat.id);
+                          setSearchQuery('');
+                        }}
+                        className={`px-2 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold whitespace-nowrap transition-all flex items-center gap-1 cursor-pointer shrink-0 ${
+                          isCatActive
+                            ? 'bg-rose-600 text-white shadow-2xs ring-1 ring-rose-400'
+                            : 'bg-stone-100 hover:bg-stone-200 text-stone-700'
+                        }`}
+                        title={cat.name}
+                      >
+                        <span>{cat.emoji}</span>
+                        <span>{cat.shortName}</span>
+                        {eqCount > 0 && (
                           <span
-                            className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${
-                              worn
-                                ? 'bg-rose-600 text-white'
-                                : 'bg-stone-200 text-stone-500'
+                            className={`w-3.5 h-3.5 rounded-full text-[9px] flex items-center justify-center font-bold ${
+                              isCatActive ? 'bg-white text-rose-600' : 'bg-rose-500 text-white'
                             }`}
                           >
-                            {worn ? '✓' : '+'}
+                            {eqCount}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Ô tìm kiếm món đồ nhanh */}
+                {activeCategory !== 'bo' && (
+                  <div className="relative pt-0.5">
+                    <Search className="w-3.5 h-3.5 text-stone-400 absolute left-2.5 top-2.5" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Tìm món đồ trong tủ..."
+                      className="w-full pl-8 pr-7 py-1 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-800 placeholder-stone-400 focus:outline-none focus:border-rose-400"
+                    />
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery('')}
+                        className="absolute right-2 top-2 text-stone-400 hover:text-stone-600"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Danh sách các món đồ (Items List) */}
+              <div className="overflow-y-auto space-y-2 py-2 pr-1 flex-1 max-h-[460px] lg:max-h-[500px]">
+                {activeCategory === 'bo' ? (
+                  /* Presets */
+                  <div className="space-y-2">
+                    {PRESET_OUTFITS.map((preset) => (
+                      <div
+                        key={preset.id}
+                        onClick={() => {
+                          onApplyPreset(preset.id);
+                          setActiveCategory(null);
+                        }}
+                        className="p-2.5 rounded-xl bg-stone-50 hover:bg-rose-50 border border-stone-200 hover:border-rose-300 cursor-pointer transition-all text-xs group"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-stone-900 group-hover:text-rose-900">
+                            {preset.name}
+                          </span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-stone-200 text-stone-700 group-hover:bg-rose-600 group-hover:text-white transition-colors">
+                            Mặc bộ này
                           </span>
                         </div>
+                        <div className="text-[10px] text-stone-500 mt-1">
+                          {preset.styleName} · {preset.eventContext}
+                        </div>
                       </div>
-                    );
-                  })
+                    ))}
+                  </div>
+                ) : (
+                  /* Wardrobe items for this category */
+                  (() => {
+                    const rawItems = getCategoryItems(activeCategory);
+                    const filteredItems = rawItems.filter((item) => {
+                      const matchesSearch =
+                        !searchQuery ||
+                        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        item.styleTag.toLowerCase().includes(searchQuery.toLowerCase());
+                      const matchesFilter =
+                        !filterPresetOnly ||
+                        currentEra.stylingSuggestion.presetItemIds.includes(item.id);
+                      return matchesSearch && matchesFilter;
+                    });
+
+                    if (filteredItems.length === 0) {
+                      return (
+                        <div className="py-8 text-center text-stone-400 text-xs italic">
+                          Không tìm thấy món đồ phù hợp tiêu chí tìm kiếm.
+                        </div>
+                      );
+                    }
+
+                    return filteredItems.map((item) => {
+                      const worn = isSelected(item.id);
+                      const isRecommended =
+                        currentEra.stylingSuggestion.presetItemIds.includes(item.id);
+
+                      return (
+                        <div
+                          key={item.id}
+                          onClick={() => {
+                            if (item.category === 'background') {
+                              if (item.id === 'nen-hoang-thanh-hue') setBgTheme('palace');
+                              else if (item.id === 'nen-pho-co-hoi-an') setBgTheme('street');
+                              else setBgTheme('snow-pagoda');
+                            }
+                            onToggleItem(item);
+                          }}
+                          className={`p-2.5 rounded-xl border cursor-pointer transition-all flex items-center justify-between gap-2.5 ${
+                            worn
+                              ? 'bg-rose-50/90 border-rose-500 shadow-2xs ring-1 ring-rose-400/40'
+                              : 'bg-stone-50 hover:bg-stone-100 border-stone-200/80 hover:border-stone-300'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 overflow-hidden flex-1">
+                            <span
+                              className="w-5 h-5 rounded-full border border-black/10 shrink-0 shadow-2xs"
+                              style={{ backgroundColor: item.color }}
+                            />
+                            <div className="overflow-hidden flex-1">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="text-xs font-bold text-stone-900 truncate">
+                                  {item.name}
+                                </span>
+                                {isRecommended && (
+                                  <span
+                                    className="text-[9px] font-bold text-amber-900 bg-amber-100 border border-amber-300 px-1 py-0.2 rounded-sm shrink-0"
+                                    title="Món đồ thuộc công thức gợi ý lịch sử"
+                                  >
+                                    ⭐ Gợi ý
+                                  </span>
+                                )}
+                                {item.isTabooForStreetwear && (
+                                  <span
+                                    className="text-[9px] font-bold text-red-700 bg-red-100 border border-red-200 px-1 py-0.2 rounded-sm shrink-0"
+                                    title="Họa tiết cấm kỵ"
+                                  >
+                                    ! Cấm kỵ
+                                  </span>
+                                )}
+                              </div>
+                              <span className="text-[10px] text-stone-500 block truncate">
+                                {item.styleTag}
+                              </span>
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            className={`px-2 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold shrink-0 transition-all cursor-pointer ${
+                              worn
+                                ? 'bg-rose-600 text-white shadow-2xs'
+                                : 'bg-white hover:bg-stone-200 text-stone-700 border border-stone-300'
+                            }`}
+                          >
+                            {worn ? '✓ Đang mặc' : '+ Mặc vào'}
+                          </button>
+                        </div>
+                      );
+                    });
+                  })()
+                )}
+              </div>
+
+              {/* Drawer footer */}
+              <div className="pt-2 border-t border-stone-200 flex items-center justify-between text-[11px] text-stone-500">
+                <span>
+                  {getCategoryItems(activeCategory).length} món trong danh mục này
+                </span>
+                {getEquippedCount(activeCategory) > 0 && (
+                  <button
+                    onClick={() => {
+                      getCategoryItems(activeCategory).forEach((it) => {
+                        if (isSelected(it.id)) onToggleItem(it);
+                      });
+                    }}
+                    className="text-stone-600 hover:text-red-700 font-semibold cursor-pointer underline text-[10px]"
+                  >
+                    Cởi bỏ danh mục này
+                  </button>
                 )}
               </div>
             </div>
           )}
 
-          {/* CỘT NÚT VIÊN THUỐC TRÒN BO GÓC DỌC (GIỐNG 100% ẢNH MINH HỌA) */}
-          {/* Cột các nút tròn danh mục (10 Danh mục chuẩn + tiện ích) */}
-          <div className="flex flex-col items-center gap-1.5 py-1 px-1 bg-stone-900/40 backdrop-blur-md rounded-2xl border border-white/20 shadow-xl max-h-[620px] overflow-y-auto">
+          {/* CỘT NÚT DANH MỤC TỦ ĐỒ (GRID 2 CỘT GỌN GÀNG, KHÔNG BAO GIỜ BỊ KHUẤT) */}
+          <div className="grid grid-cols-2 gap-1.5 p-1.5 bg-stone-900/60 backdrop-blur-md rounded-2xl border border-white/20 shadow-xl w-28 sm:w-32 shrink-0">
             {/* 1. Tóc */}
             <button
-              onClick={() =>
-                setActiveCategory(activeCategory === 'toc' ? null : 'toc')
-              }
-              className={`relative w-12 h-11 sm:w-14 sm:h-12 rounded-xl bg-white/95 border-2 flex flex-col items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all ${
+              onClick={() => setActiveCategory(activeCategory === 'toc' ? null : 'toc')}
+              className={`relative h-11 sm:h-12 rounded-xl border flex flex-col items-center justify-center transition-all cursor-pointer ${
                 activeCategory === 'toc'
-                  ? 'border-rose-500 ring-2 ring-rose-300'
-                  : 'border-stone-200'
+                  ? 'bg-rose-50 border-rose-500 ring-2 ring-rose-400 shadow-md'
+                  : 'bg-white/95 hover:bg-white border-stone-200 hover:scale-105'
               }`}
+              title="Tóc & Mấn"
             >
               <span className="text-base leading-none">💇‍♀️</span>
               <span className="text-[9px] font-bold text-stone-800">Tóc</span>
+              {getEquippedCount('toc') > 0 && (
+                <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-rose-500 ring-1 ring-white" />
+              )}
             </button>
 
-            {/* 2. Đầm */}
+            {/* 2. Giày */}
             <button
-              onClick={() =>
-                setActiveCategory(activeCategory === 'dam' ? null : 'dam')
-              }
-              className={`relative w-12 h-11 sm:w-14 sm:h-12 rounded-xl bg-white/95 border-2 flex flex-col items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all ${
-                activeCategory === 'dam'
-                  ? 'border-rose-500 ring-2 ring-rose-300'
-                  : 'border-stone-200'
-              }`}
-            >
-              <span className="text-base leading-none">👗</span>
-              <span className="text-[9px] font-bold text-stone-800">Đầm</span>
-            </button>
-
-            {/* 3. Áo */}
-            <button
-              onClick={() =>
-                setActiveCategory(activeCategory === 'ao' ? null : 'ao')
-              }
-              className={`relative w-12 h-11 sm:w-14 sm:h-12 rounded-xl bg-white/95 border-2 flex flex-col items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all ${
-                activeCategory === 'ao'
-                  ? 'border-rose-500 ring-2 ring-rose-300'
-                  : 'border-stone-200'
-              }`}
-            >
-              <span className="text-base leading-none">👚</span>
-              <span className="text-[9px] font-bold text-stone-800">Áo</span>
-            </button>
-
-            {/* 4. Quần */}
-            <button
-              onClick={() =>
-                setActiveCategory(activeCategory === 'quan' ? null : 'quan')
-              }
-              className={`relative w-12 h-11 sm:w-14 sm:h-12 rounded-xl bg-white/95 border-2 flex flex-col items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all ${
-                activeCategory === 'quan'
-                  ? 'border-rose-500 ring-2 ring-rose-300'
-                  : 'border-stone-200'
-              }`}
-            >
-              <span className="text-base leading-none">👖</span>
-              <span className="text-[9px] font-bold text-stone-800">Quần</span>
-            </button>
-
-            {/* 5. Khoác */}
-            <button
-              onClick={() =>
-                setActiveCategory(activeCategory === 'khoac' ? null : 'khoac')
-              }
-              className={`relative w-12 h-11 sm:w-14 sm:h-12 rounded-xl bg-white/95 border-2 flex flex-col items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all ${
-                activeCategory === 'khoac'
-                  ? 'border-rose-500 ring-2 ring-rose-300'
-                  : 'border-stone-200'
-              }`}
-            >
-              <span className="text-base leading-none">🧥</span>
-              <span className="text-[9px] font-bold text-stone-800">Khoác</span>
-            </button>
-
-            {/* 6. Vớ */}
-            <button
-              onClick={() =>
-                setActiveCategory(activeCategory === 'vo' ? null : 'vo')
-              }
-              className={`relative w-12 h-11 sm:w-14 sm:h-12 rounded-xl bg-white/95 border-2 flex flex-col items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all ${
-                activeCategory === 'vo'
-                  ? 'border-rose-500 ring-2 ring-rose-300'
-                  : 'border-stone-200'
-              }`}
-            >
-              <span className="text-base leading-none">🧦</span>
-              <span className="text-[9px] font-bold text-stone-800">Vớ</span>
-            </button>
-
-            {/* 7. Giày */}
-            <button
-              onClick={() =>
-                setActiveCategory(activeCategory === 'giay' ? null : 'giay')
-              }
-              className={`relative w-12 h-11 sm:w-14 sm:h-12 rounded-xl bg-white/95 border-2 flex flex-col items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all ${
+              onClick={() => setActiveCategory(activeCategory === 'giay' ? null : 'giay')}
+              className={`relative h-11 sm:h-12 rounded-xl border flex flex-col items-center justify-center transition-all cursor-pointer ${
                 activeCategory === 'giay'
-                  ? 'border-rose-500 ring-2 ring-rose-300'
-                  : 'border-stone-200'
+                  ? 'bg-rose-50 border-rose-500 ring-2 ring-rose-400 shadow-md'
+                  : 'bg-white/95 hover:bg-white border-stone-200 hover:scale-105'
               }`}
+              title="Giày & Hài thêu"
             >
               <span className="text-base leading-none">👠</span>
               <span className="text-[9px] font-bold text-stone-800">Giày</span>
+              {getEquippedCount('giay') > 0 && (
+                <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-rose-500 ring-1 ring-white" />
+              )}
             </button>
 
-            {/* 8. Trang sức */}
+            {/* 3. Đầm / Áo dài */}
             <button
-              onClick={() =>
-                setActiveCategory(activeCategory === 'tsuc' ? null : 'tsuc')
-              }
-              className={`relative w-12 h-11 sm:w-14 sm:h-12 rounded-xl bg-white/95 border-2 flex flex-col items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all ${
-                activeCategory === 'tsuc'
-                  ? 'border-rose-500 ring-2 ring-rose-300'
-                  : 'border-stone-200'
+              onClick={() => setActiveCategory(activeCategory === 'dam' ? null : 'dam')}
+              className={`relative h-11 sm:h-12 rounded-xl border flex flex-col items-center justify-center transition-all cursor-pointer ${
+                activeCategory === 'dam'
+                  ? 'bg-rose-50 border-rose-500 ring-2 ring-rose-400 shadow-md'
+                  : 'bg-white/95 hover:bg-white border-stone-200 hover:scale-105'
               }`}
+              title="Đầm & Áo dài"
+            >
+              <span className="text-base leading-none">👗</span>
+              <span className="text-[9px] font-bold text-stone-800">Đầm</span>
+              {getEquippedCount('dam') > 0 && (
+                <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-rose-500 ring-1 ring-white" />
+              )}
+            </button>
+
+            {/* 4. Trang sức */}
+            <button
+              onClick={() => setActiveCategory(activeCategory === 'tsuc' ? null : 'tsuc')}
+              className={`relative h-11 sm:h-12 rounded-xl border flex flex-col items-center justify-center transition-all cursor-pointer ${
+                activeCategory === 'tsuc'
+                  ? 'bg-rose-50 border-rose-500 ring-2 ring-rose-400 shadow-md'
+                  : 'bg-white/95 hover:bg-white border-stone-200 hover:scale-105'
+              }`}
+              title="Trang sức & Hoa văn"
             >
               <span className="text-base leading-none">👑</span>
               <span className="text-[9px] font-bold text-stone-800">T.sức</span>
+              {getEquippedCount('tsuc') > 0 && (
+                <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-rose-500 ring-1 ring-white" />
+              )}
             </button>
 
-            {/* 9. Mặt / Biểu cảm (Popmart) */}
+            {/* 5. Áo */}
             <button
-              onClick={() =>
-                setActiveCategory(activeCategory === 'mat' ? null : 'mat')
-              }
-              className={`relative w-12 h-11 sm:w-14 sm:h-12 rounded-xl bg-white/95 border-2 flex flex-col items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all ${
-                activeCategory === 'mat'
-                  ? 'border-rose-500 ring-2 ring-rose-300'
-                  : 'border-stone-200'
+              onClick={() => setActiveCategory(activeCategory === 'ao' ? null : 'ao')}
+              className={`relative h-11 sm:h-12 rounded-xl border flex flex-col items-center justify-center transition-all cursor-pointer ${
+                activeCategory === 'ao'
+                  ? 'bg-rose-50 border-rose-500 ring-2 ring-rose-400 shadow-md'
+                  : 'bg-white/95 hover:bg-white border-stone-200 hover:scale-105'
               }`}
+              title="Áo trong & Yếm"
+            >
+              <span className="text-base leading-none">👚</span>
+              <span className="text-[9px] font-bold text-stone-800">Áo</span>
+              {getEquippedCount('ao') > 0 && (
+                <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-rose-500 ring-1 ring-white" />
+              )}
+            </button>
+
+            {/* 6. Mặt Popmart */}
+            <button
+              onClick={() => setActiveCategory(activeCategory === 'mat' ? null : 'mat')}
+              className={`relative h-11 sm:h-12 rounded-xl border flex flex-col items-center justify-center transition-all cursor-pointer ${
+                activeCategory === 'mat'
+                  ? 'bg-rose-50 border-rose-500 ring-2 ring-rose-400 shadow-md'
+                  : 'bg-white/95 hover:bg-white border-stone-200 hover:scale-105'
+              }`}
+              title="Mặt & Biểu cảm Popmart"
             >
               <span className="text-base leading-none">😊</span>
               <span className="text-[9px] font-bold text-stone-800">Mặt</span>
+              {getEquippedCount('mat') > 0 && (
+                <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-rose-500 ring-1 ring-white" />
+              )}
             </button>
 
-            {/* 10. Nền */}
+            {/* 7. Quần */}
             <button
-              onClick={() =>
-                setActiveCategory(activeCategory === 'nen' ? null : 'nen')
-              }
-              className={`relative w-12 h-11 sm:w-14 sm:h-12 rounded-xl bg-white/95 border-2 flex flex-col items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all ${
-                activeCategory === 'nen'
-                  ? 'border-rose-500 ring-2 ring-rose-300'
-                  : 'border-stone-200'
+              onClick={() => setActiveCategory(activeCategory === 'quan' ? null : 'quan')}
+              className={`relative h-11 sm:h-12 rounded-xl border flex flex-col items-center justify-center transition-all cursor-pointer ${
+                activeCategory === 'quan'
+                  ? 'bg-rose-50 border-rose-500 ring-2 ring-rose-400 shadow-md'
+                  : 'bg-white/95 hover:bg-white border-stone-200 hover:scale-105'
               }`}
+              title="Quần & Váy"
+            >
+              <span className="text-base leading-none">👖</span>
+              <span className="text-[9px] font-bold text-stone-800">Quần</span>
+              {getEquippedCount('quan') > 0 && (
+                <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-rose-500 ring-1 ring-white" />
+              )}
+            </button>
+
+            {/* 8. Nền */}
+            <button
+              onClick={() => setActiveCategory(activeCategory === 'nen' ? null : 'nen')}
+              className={`relative h-11 sm:h-12 rounded-xl border flex flex-col items-center justify-center transition-all cursor-pointer ${
+                activeCategory === 'nen'
+                  ? 'bg-rose-50 border-rose-500 ring-2 ring-rose-400 shadow-md'
+                  : 'bg-white/95 hover:bg-white border-stone-200 hover:scale-105'
+              }`}
+              title="Nền & Bối cảnh di sản"
             >
               <span className="text-base leading-none">🏞️</span>
               <span className="text-[9px] font-bold text-stone-800">Nền</span>
+              {getEquippedCount('nen') > 0 && (
+                <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-rose-500 ring-1 ring-white" />
+              )}
             </button>
 
-            {/* Tiện ích: Bộ trang phục mẫu */}
+            {/* 9. Khoác */}
             <button
-              onClick={() =>
-                setActiveCategory(activeCategory === 'bo' ? null : 'bo')
-              }
-              className="w-10 h-9 rounded-lg bg-white/80 border border-stone-200 flex flex-col items-center justify-center hover:bg-white shadow-xs"
-              title="Bộ trang phục mẫu"
+              onClick={() => setActiveCategory(activeCategory === 'khoac' ? null : 'khoac')}
+              className={`relative h-11 sm:h-12 rounded-xl border flex flex-col items-center justify-center transition-all cursor-pointer ${
+                activeCategory === 'khoac'
+                  ? 'bg-rose-50 border-rose-500 ring-2 ring-rose-400 shadow-md'
+                  : 'bg-white/95 hover:bg-white border-stone-200 hover:scale-105'
+              }`}
+              title="Áo khoác ngoài & Áo tấc"
             >
-              <span className="text-[10px]">👘</span>
-              <span className="text-[8px] font-bold text-stone-600">Bộ</span>
+              <span className="text-base leading-none">🧥</span>
+              <span className="text-[9px] font-bold text-stone-800">Khoác</span>
+              {getEquippedCount('khoac') > 0 && (
+                <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-rose-500 ring-1 ring-white" />
+              )}
             </button>
 
-            {/* Nút Xóa / Cởi đồ */}
+            {/* 10. Bộ mẫu chuẩn */}
+            <button
+              onClick={() => setActiveCategory(activeCategory === 'bo' ? null : 'bo')}
+              className={`relative h-11 sm:h-12 rounded-xl border flex flex-col items-center justify-center transition-all cursor-pointer ${
+                activeCategory === 'bo'
+                  ? 'bg-rose-50 border-rose-500 ring-2 ring-rose-400 shadow-md'
+                  : 'bg-white/95 hover:bg-white border-stone-200 hover:scale-105'
+              }`}
+              title="Bộ trang phục mẫu chuẩn"
+            >
+              <span className="text-base leading-none">👘</span>
+              <span className="text-[9px] font-bold text-stone-800">Bộ</span>
+            </button>
+
+            {/* 11. Vớ */}
+            <button
+              onClick={() => setActiveCategory(activeCategory === 'vo' ? null : 'vo')}
+              className={`relative h-11 sm:h-12 rounded-xl border flex flex-col items-center justify-center transition-all cursor-pointer ${
+                activeCategory === 'vo'
+                  ? 'bg-rose-50 border-rose-500 ring-2 ring-rose-400 shadow-md'
+                  : 'bg-white/95 hover:bg-white border-stone-200 hover:scale-105'
+              }`}
+              title="Vớ & Tất chân"
+            >
+              <span className="text-base leading-none">🧦</span>
+              <span className="text-[9px] font-bold text-stone-800">Vớ</span>
+              {getEquippedCount('vo') > 0 && (
+                <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-rose-500 ring-1 ring-white" />
+              )}
+            </button>
+
+            {/* 12. Xóa / Cởi đồ */}
             <button
               onClick={onClearAll}
-              className="w-10 h-9 rounded-lg bg-white/80 border border-stone-200 flex flex-col items-center justify-center hover:bg-white shadow-xs"
-              title="Cởi toàn bộ đồ về mặc định"
+              className="relative h-11 sm:h-12 rounded-xl border border-stone-300 bg-red-50/90 hover:bg-red-100 flex flex-col items-center justify-center transition-all hover:scale-105 cursor-pointer shadow-xs"
+              title="Cởi toàn bộ đồ về mặc định ở nhà"
             >
-              <span className="text-[10px]">🗑️</span>
-              <span className="text-[8px] font-bold text-stone-600">Xóa</span>
-            </button>
-
-            {/* Nút Chat AI Stylist */}
-            <button
-              onClick={onOpenChat}
-              className="w-10 h-9 rounded-lg bg-amber-50 border border-amber-300 flex flex-col items-center justify-center hover:bg-amber-100 shadow-xs"
-              title="Hỏi AI Stylist"
-            >
-              <Bot className="w-3 h-3 text-amber-700" />
-              <span className="text-[8px] font-bold text-amber-800">AI</span>
+              <span className="text-base leading-none">🗑️</span>
+              <span className="text-[9px] font-bold text-red-700">Cởi hết</span>
             </button>
           </div>
         </div>

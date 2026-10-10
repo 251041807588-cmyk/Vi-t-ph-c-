@@ -8,10 +8,7 @@ import { CulturalInfoCard } from '@/components/CulturalInfoCard';
 import { CulturalInfoModal } from '@/components/CulturalInfoModal';
 import { HistoricalEraMatrix } from '@/components/HistoricalEraMatrix';
 import { CulturalStandardsSection } from '@/components/CulturalStandardsModal';
-import { AiStylistChatDrawer } from '@/components/AiStylistChatDrawer';
-import { UiUxBlueprintModal } from '@/components/UiUxBlueprintModal';
 import { HeritageCollectorCardModal } from '@/components/HeritageCollectorCardModal';
-import { OutfitImageRecognitionModal } from '@/components/OutfitImageRecognitionModal';
 import {
   HISTORICAL_ERAS,
   WARDROBE_CATALOG,
@@ -23,11 +20,8 @@ import { ArrowLeft } from 'lucide-react';
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState<'studio' | 'matrix' | 'about'>('studio');
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const [isCulturalModalOpen, setIsCulturalModalOpen] = useState(false);
-  const [isBlueprintOpen, setIsBlueprintOpen] = useState(false);
   const [isCollectorCardOpen, setIsCollectorCardOpen] = useState(false);
-  const [isRecognitionOpen, setIsRecognitionOpen] = useState(false);
 
   // Workflow state:
   // Ban đầu CHỈ hiển thị giao diện các trạm dạng full-screen (bỏ nền phía trên).
@@ -223,14 +217,7 @@ export default function HomePage() {
     }
   };
 
-  // Áp dụng bộ trang phục được nhận diện từ ảnh vào UI
-  const handleApplyRecognizedOutfit = (items: WardrobeItem[], era: HistoricalEra) => {
-    setSelectedEra(era);
-    setSelectedItems(items);
-    setIsStudioView(true);
-    setIsOutfitCompleted(true);
-    handleAnalyzeOutfit(items, eventContext, era.stationTitle);
-  };
+
 
   const hasTabooItems = selectedItems.some(
     (i) =>
@@ -251,9 +238,6 @@ export default function HomePage() {
             setIsStudioView(false);
           }
         }}
-        onOpenChat={() => setIsChatOpen(true)}
-        onOpenBlueprint={() => setIsBlueprintOpen(true)}
-        onOpenRecognition={() => setIsRecognitionOpen(true)}
       />
 
       <main className="flex-1 w-full flex flex-col">
@@ -265,14 +249,14 @@ export default function HomePage() {
               <StationSelectionMap
                 onSelectStation={handleSelectStationAndEnterStudio}
                 selectedEraId={selectedEra.id}
-                onOpenRecognition={() => setIsRecognitionOpen(true)}
+                onOpenKnowledge={() => setActiveTab('matrix')}
                 onOpenStandards={() => setIsCulturalModalOpen(true)}
               />
             ) : (
               /* GIAO DIỆN 2: SAU KHI CLICK VÀO CÁC TRẠM MỚI HIỆN LÊN NGƯỜI MẪU VÀ TỦ ĐỒ,... */
-              <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 animate-in fade-in duration-300">
+              <div className="w-full max-w-[1700px] mx-auto px-2 sm:px-4 lg:px-6 py-2 sm:py-4 space-y-3 animate-in fade-in duration-300">
                 {/* Thanh điều hướng & Quay lại Bản đồ các trạm */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-stone-200/90 rounded-2xl p-3 sm:px-4 shadow-2xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-stone-200/90 rounded-2xl p-2.5 sm:px-4 shadow-2xs">
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => setIsStudioView(false)}
@@ -319,13 +303,8 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* GIAO DIỆN PHÒNG PHỐI ĐỒ CHUẨN ĐỒ HỌA NGÔI SAO THỜI TRANG:
-                    - BỐI CẢNH Ở TRÊN MODEL (VÙNG CAM TRÊN CÙNG)
-                    - BÊN TRÁI: POP-UP GỢI Ý PHỐI ĐỒ & NÚT SẴN SÀNG
-                    - Ở GIỮA: NGƯỜI MẪU ANIME NIKKI ĐA TẦNG PHỤC TRANG
-                    - BÊN PHẢI CẠNH MODEL: THANH CỘT DANH MỤC TỦ ĐỒ (TÓC, ĐẦM, KHOÁC, ÁO, QUẦN, GIÀY, T.SỨC)
-                */}
-                <div id="nikki-stage">
+                {/* GIAO DIỆN PHÒNG PHỐI ĐỒ CHUẨN ĐỒ HỌA NGÔI SAO THỜI TRANG: TRÀN MÀN HÌNH ĐỂ KHÔNG KHUẤT TỦ ĐỒ */}
+                <div id="nikki-stage" className="w-full">
                   <NikkiDressUpStage
                     currentEra={selectedEra}
                     selectedItems={selectedItems}
@@ -335,7 +314,6 @@ export default function HomePage() {
                     onApplyStationSuggestion={handleApplyStationSuggestion}
                     onBackToTimeline={() => setIsStudioView(false)}
                     onOpenEvaluation={() => setIsCulturalModalOpen(true)}
-                    onOpenChat={() => setIsChatOpen(true)}
                     eventContext={eventContext}
                     onChangeEventContext={(ctx) => {
                       setEventContext(ctx);
@@ -351,7 +329,6 @@ export default function HomePage() {
                     onCompleteOutfit={handleCompleteOutfit}
                     isOutfitCompleted={isOutfitCompleted}
                     onOpenCollectorCard={() => setIsCollectorCardOpen(true)}
-                    onOpenRecognition={() => setIsRecognitionOpen(true)}
                     onChangeEra={handleSelectStationAndEnterStudio}
                   />
                 </div>
@@ -360,7 +337,7 @@ export default function HomePage() {
                 {isOutfitCompleted && (
                   <div
                     id="cultural-guardrail-section"
-                    className="max-w-4xl mx-auto mt-6 animate-in fade-in slide-in-from-bottom-4 duration-300"
+                    className="max-w-6xl w-full mx-auto mt-6 animate-in fade-in slide-in-from-bottom-4 duration-300"
                   >
                     <div className="flex items-center justify-between mb-3 px-1">
                       <div className="flex items-center gap-2">
@@ -438,22 +415,6 @@ export default function HomePage() {
         itemNames={selectedItems.map((i) => i.name)}
       />
 
-      {/* Slide-out AI Stylist Chatbot Drawer */}
-      <AiStylistChatDrawer
-        isOpen={isChatOpen}
-        onClose={() => setIsChatOpen(false)}
-        currentEra={selectedEra}
-        eventContext={eventContext}
-        selectedStyle={selectedStyle}
-        selectedItems={selectedItems}
-      />
-
-      {/* UI/UX Blueprint Modal */}
-      <UiUxBlueprintModal
-        isOpen={isBlueprintOpen}
-        onClose={() => setIsBlueprintOpen(false)}
-      />
-
       {/* Shareable 3D Popmart Heritage Collector Card Modal */}
       <HeritageCollectorCardModal
         isOpen={isCollectorCardOpen}
@@ -468,13 +429,6 @@ export default function HomePage() {
         decencyExplanation={decencyExplanation}
         onAutoFixTaboo={handleAutoFixTaboo}
         hasTabooItems={hasTabooItems}
-      />
-
-      {/* AI Image Recognition & UI Outfit Inserter Modal */}
-      <OutfitImageRecognitionModal
-        isOpen={isRecognitionOpen}
-        onClose={() => setIsRecognitionOpen(false)}
-        onApplyRecognizedOutfit={handleApplyRecognizedOutfit}
       />
 
       {/* Footer */}

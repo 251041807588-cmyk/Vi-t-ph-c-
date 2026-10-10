@@ -120,16 +120,6 @@ export function PopmartDollVisualizer({
           >
             {atmosphere === 'night-snow' ? <Moon className="w-3 h-3 text-amber-300" /> : <Sun className="w-3 h-3 text-amber-400" />}
           </button>
-          {onOpenRecognition && (
-            <button
-              onClick={onOpenRecognition}
-              className="ml-0.5 px-2 py-0.5 rounded-full bg-rose-500 hover:bg-rose-600 text-white text-[10px] font-bold flex items-center gap-1 shadow-xs cursor-pointer hover:scale-105 transition-all"
-              title="Nhận diện hình ảnh phối đồ qua AI Scanner"
-            >
-              <Camera className="w-3 h-3" />
-              <span className="hidden sm:inline">Quét</span>
-            </button>
-          )}
         </div>
       </div>
 

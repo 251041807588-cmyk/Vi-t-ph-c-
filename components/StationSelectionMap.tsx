@@ -18,7 +18,7 @@ import {
   CheckCircle2,
   X,
   Award,
-  Camera,
+  BookOpen,
   Coins,
   Gem,
   Heart,
@@ -30,14 +30,14 @@ import {
 interface StationSelectionMapProps {
   onSelectStation: (era: HistoricalEra) => void;
   selectedEraId?: string;
-  onOpenRecognition?: () => void;
+  onOpenKnowledge?: () => void;
   onOpenStandards?: () => void;
 }
 
 export function StationSelectionMap({
   onSelectStation,
   selectedEraId = 'ly-tran-le',
-  onOpenRecognition,
+  onOpenKnowledge,
   onOpenStandards,
 }: StationSelectionMapProps) {
   const [activeEraId, setActiveEraId] = useState<string>(selectedEraId);
@@ -401,7 +401,7 @@ export function StationSelectionMap({
             Hành Trình 5 Mốc Thời Kỳ
           </h1>
           <p className="text-[11px] text-amber-200/90 font-medium mt-0.5">
-            Du hành cổ phục • Chấm điểm thuần phong mỹ tục • Nhận diện AI
+            Du hành cổ phục • Kiến thức lịch sử • Chấm điểm thuần phong mỹ tục
           </p>
         </div>
       </div>
@@ -938,18 +938,6 @@ export function StationSelectionMap({
                 <ArrowRight className="w-4 h-4" />
               </button>
 
-              {onOpenRecognition && (
-                <button
-                  onClick={() => {
-                    setSelectedInspectEra(null);
-                    onOpenRecognition();
-                  }}
-                  className="py-3 px-4 rounded-xl bg-stone-800 hover:bg-stone-700 border border-amber-400/40 text-amber-200 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all"
-                >
-                  <Camera className="w-4 h-4" />
-                  <span>Nhận diện AI</span>
-                </button>
-              )}
             </div>
           </div>
         </div>
@@ -1033,17 +1021,19 @@ export function StationSelectionMap({
             <span className="text-[10px] font-bold mt-0.5">Chuẩn Mực</span>
           </button>
 
-          {/* Nút 4: Nhận Diện Ảnh AI */}
-          <button
-            onClick={() => {
-              playSoundEffect('click');
-              if (onOpenRecognition) onOpenRecognition();
-            }}
-            className="flex flex-col items-center py-1 px-2.5 rounded-2xl hover:bg-white/10 text-stone-300 hover:text-white cursor-pointer transition-transform active:scale-90"
-          >
-            <Camera className="w-5 h-5 text-cyan-400" />
-            <span className="text-[10px] font-bold mt-0.5">Nhận Diện</span>
-          </button>
+          {/* Nút 4: Kiến Thức Lịch Sử */}
+          {onOpenKnowledge && (
+            <button
+              onClick={() => {
+                playSoundEffect('click');
+                onOpenKnowledge();
+              }}
+              className="flex flex-col items-center py-1 px-2.5 rounded-2xl hover:bg-white/10 text-stone-300 hover:text-white cursor-pointer transition-transform active:scale-90"
+            >
+              <BookOpen className="w-5 h-5 text-amber-300" />
+              <span className="text-[10px] font-bold mt-0.5">Kiến Thức</span>
+            </button>
+          )}
 
           {/* Nút 5: Rương Quà */}
           <button

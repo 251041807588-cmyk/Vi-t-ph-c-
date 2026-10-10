@@ -14,7 +14,7 @@ export function HistoricalEraMatrix() {
       : ERA_LOOKUP_MATRIX.filter((row) => row.eraId === selectedEraTab);
 
   const generateMarkdownTable = () => {
-    let md = `# BẢNG TỔNG HỢP CÁC TRẠM THỜI KỲ PHỐI ĐỒ & HÀNG RÀO VĂN HÓA "ÁO XƯA NAY"\n\n`;
+    let md = `# BẢNG KIẾN THỨC LỊCH SỬ 4 THỜI KỲ PHỐI ĐỒ & HÀNG RÀO VĂN HÓA "ÁO XƯA NAY"\n\n`;
     md += `| Trạm Thời kỳ | Sự kiện / Bối cảnh sử dụng | Phong cách (Style) & Phối đồ (Mix & Match) | Màu sắc & Phụ kiện đi kèm | Nội dung Thẻ thông tin (Info Card) & Hàng rào văn hóa |\n`;
     md += `| :--- | :--- | :--- | :--- | :--- |\n`;
 
@@ -40,11 +40,11 @@ export function HistoricalEraMatrix() {
           <div className="flex items-center gap-2 mb-1">
             <BookOpen className="w-5 h-5 text-[#991B1B]" />
             <h2 className="text-base font-bold font-serif-editorial text-stone-900">
-              Ma Trận 4 Trạm Thời Kỳ Trọng Điểm
+              Kiến Thức Lịch Sử 4 Thời Kỳ Trọng Điểm
             </h2>
           </div>
           <p className="text-xs text-stone-600 max-w-2xl">
-            Tài liệu tra cứu chuẩn xác về sự kiện sử dụng, công thức mix & match đương đại, màu sắc, phụ kiện và nội dung thẻ thông tin văn hóa sẵn sàng copy/paste vào báo cáo, đồ án học tập.
+            Tài liệu tra cứu kiến thức lịch sử chuẩn xác về sự kiện sử dụng, công thức mix & match đương đại, màu sắc, phụ kiện và nội dung thẻ thông tin văn hóa sẵn sàng copy/paste vào báo cáo, đồ án học tập.
           </p>
         </div>
 
@@ -76,7 +76,7 @@ export function HistoricalEraMatrix() {
               : 'text-stone-600 hover:text-stone-900'
           }`}
         >
-          Tất cả 4 trạm thời kỳ
+          Tất cả kiến thức 4 thời kỳ
         </button>
         {HISTORICAL_ERAS.map((era) => (
           <button
